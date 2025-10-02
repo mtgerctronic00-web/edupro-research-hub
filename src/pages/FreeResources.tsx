@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { openInDriveApp } from "@/lib/drive";
 
 interface ContentFile {
   id: string;
@@ -86,8 +87,7 @@ const FreeResources = () => {
         .update({ downloads_count: file.downloads_count + 1 })
         .eq('id', file.id);
 
-      const downloadUrl = convertDriveLink(file.file_url);
-      window.open(downloadUrl, '_blank');
+      openInDriveApp(file.file_url, 'download');
       toast.success('جاري التحميل...');
       fetchFiles();
     } catch (error) {

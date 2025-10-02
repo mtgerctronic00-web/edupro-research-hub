@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { openInDriveApp } from "@/lib/drive";
 
 interface ContentFile {
   id: string;
@@ -88,7 +89,7 @@ const Research = () => {
         .update({ downloads_count: research.downloads_count + 1 })
         .eq('id', research.id);
 
-      window.open(research.file_url, '_blank');
+      openInDriveApp(research.file_url, 'download');
       toast.success('جاري التحميل...');
       fetchResearches();
     } catch (error) {
