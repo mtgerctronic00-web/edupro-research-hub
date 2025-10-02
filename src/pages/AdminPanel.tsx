@@ -308,7 +308,200 @@ const AdminPanel = () => {
               <div className="grid grid-cols-1 gap-6">
                 {orders.map((order) => (
                   <Card key={order.id} className="p-6">
-...
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+                          <FileText className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">رقم الطلب: {order.order_number || 'غير متوفر'}</p>
+                          <h3 className="font-bold text-lg">{order.title}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {order.service_type} - {order.university}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="outline">{order.status}</Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div>
+                        <p className="text-muted-foreground mb-1">الطالب</p>
+                        <p className="font-medium">{order.full_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">الكلية</p>
+                        <p className="font-medium">{order.college}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">القسم</p>
+                        <p className="font-medium">{order.department}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1">التاريخ</p>
+                        <p className="font-medium">{format(new Date(order.created_at), "d MMM yyyy", { locale: ar })}</p>
+                      </div>
+                    </div>
+
+                    {order.notes && (
+                      <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                        <p className="text-xs text-muted-foreground mb-1">ملاحظات الطالب:</p>
+                        <p className="text-sm">{order.notes}</p>
+                      </div>
+                    )}
+
+                    {order.admin_notes && (
+                      <div className="mb-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                        <p className="text-xs text-blue-600 mb-1">ملاحظات الأدمن:</p>
+                        <p className="text-sm">{order.admin_notes}</p>
+                      </div>
+                    )}
+
+                    {order.rejection_reason && (
+                      <div className="mb-4 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                        <p className="text-xs text-red-600 mb-1">سبب الرفض:</p>
+                        <p className="text-sm">{order.rejection_reason}</p>
+                      </div>
+                    )}
+
+                    {order.payment_receipt_url && (
+                      <div className="mb-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(order.payment_receipt_url, '_blank')}
+                        >
+                          <Eye className="h-4 w-4 ml-2" />
+                          عرض وصل الدفع
+                        </Button>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 flex-wrap">
+                      {order.status === 'قيد المراجعة' && (
+                        <>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                className="bg-green-500 hover:bg-green-600"
+                                onClick={() => setSelectedOrder(order)}
+                              >
+                                <CheckCircle className="h-4 w-4 ml-2" />
+                                قبول
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>قبول الطلب</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 mt-4">
+                                <p>هل تريد قبول هذا الطلب؟</p>
+                                <div>
+                                  <Label>ملاحظات (اختياري)</Label>
+                                  <Textarea
+                                    value={adminNotes}
+                                    onChange={(e) => setAdminNotes(e.target.value)}
+                                    rows={3}
+                                  />
+                                </div>
+                                <Button
+                                  className="w-full bg-green-500 hover:bg-green-600"
+                                  onClick={() => updateOrderStatus(order.id, 'قيد التنفيذ', adminNotes)}
+                                >
+                                  تأكيد القبول
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setSelectedOrder(order)}
+                              >
+                                <XCircle className="h-4 w-4 ml-2" />
+                                رفض
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>رفض الطلب</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4 mt-4">
+                                <div>
+                                  <Label>سبب الرفض *</Label>
+                                  <Textarea
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                    rows={3}
+                                    required
+                                  />
+                                </div>
+                                <Button
+                                  variant="destructive"
+                                  className="w-full"
+                                  onClick={() => updateOrderStatus(order.id, 'مرفوض', undefined, rejectionReason)}
+                                >
+                                  تأكيد الرفض
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </>
+                      )}
+
+                      {order.status === 'قيد التنفيذ' && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              className="bg-blue-500 hover:bg-blue-600"
+                            >
+                              <MessageSquare className="h-4 w-4 ml-2" />
+                              تحديث
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>تحديث الطلب</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-4">
+                              <div>
+                                <Label>حالة جديدة</Label>
+                                <select
+                                  className="w-full p-2 border rounded"
+                                  onChange={(e) => {
+                                    if (e.target.value === 'تم التسليم') {
+                                      updateOrderStatus(order.id, 'تم التسليم');
+                                    }
+                                  }}
+                                >
+                                  <option value="">اختر...</option>
+                                  <option value="تم التسليم">تم التسليم</option>
+                                </select>
+                              </div>
+                              <div>
+                                <Label>ملاحظات إضافية</Label>
+                                <Textarea
+                                  value={adminNotes}
+                                  onChange={(e) => setAdminNotes(e.target.value)}
+                                  rows={3}
+                                />
+                              </div>
+                              <Button
+                                className="w-full"
+                                onClick={() => updateOrderStatus(order.id, order.status, adminNotes)}
+                              >
+                                حفظ التحديث
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </div>
                   </Card>
                 ))}
               </div>
