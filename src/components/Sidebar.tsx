@@ -11,6 +11,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -49,18 +50,27 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      setLoggingOut(true);
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) throw error;
+
+      // Hard clear any cached auth tokens (safety net)
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('sb-')) localStorage.removeItem(key);
+      });
       
       setUser(null);
       setIsAdmin(false);
       toast.success("تم تسجيل الخروج بنجاح");
       
-      // Redirect to auth after logout
       navigate("/auth", { replace: true });
+      // Ensure UI resets completely
+      setTimeout(() => window.location.reload(), 50);
     } catch (error: any) {
       console.error("Logout error:", error);
       toast.error("حدث خطأ أثناء تسجيل الخروج");
+    } finally {
+      setLoggingOut(false);
     }
   };
 
