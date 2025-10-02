@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_files: {
+        Row: {
+          access_type: Database["public"]["Enums"]["access_type"]
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string | null
+          description: string | null
+          downloads_count: number | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          price: number | null
+          title: string
+          updated_at: string | null
+          uploaded_by: string | null
+          views_count: number | null
+        }
+        Insert: {
+          access_type?: Database["public"]["Enums"]["access_type"]
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string | null
+          description?: string | null
+          downloads_count?: number | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          price?: number | null
+          title: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          access_type?: Database["public"]["Enums"]["access_type"]
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string | null
+          description?: string | null
+          downloads_count?: number | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          price?: number | null
+          title?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           admin_notes: string | null
@@ -107,7 +158,9 @@ export type Database = {
       }
     }
     Enums: {
+      access_type: "view_only" | "free_download" | "paid_download"
       app_role: "admin" | "student"
+      content_type: "research" | "seminar" | "report"
       order_status: "قيد المراجعة" | "مؤكد - جاري التنفيذ" | "مرفوض" | "مكتمل"
       service_type: "بحث" | "سمنار" | "تقرير"
     }
@@ -237,7 +290,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_type: ["view_only", "free_download", "paid_download"],
       app_role: ["admin", "student"],
+      content_type: ["research", "seminar", "report"],
       order_status: ["قيد المراجعة", "مؤكد - جاري التنفيذ", "مرفوض", "مكتمل"],
       service_type: ["بحث", "سمنار", "تقرير"],
     },
