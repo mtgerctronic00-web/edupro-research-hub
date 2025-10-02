@@ -32,6 +32,8 @@ const Shop = () => {
   const [selectedFile, setSelectedFile] = useState<ContentFile | null>(null);
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState('');
   
   // Booking form
   const [fullName, setFullName] = useState("");
@@ -40,7 +42,6 @@ const Shop = () => {
   const [department, setDepartment] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
   
   const navigate = useNavigate();
 
@@ -89,34 +90,7 @@ const Shop = () => {
 
     setSubmitting(true);
     try {
-      let receiptUrl = '';
-
-      // Upload payment receipt if exists (optional - can send via WhatsApp)
-      if (paymentReceipt) {
-        try {
-          const fileExt = paymentReceipt.name.split('.').pop();
-          const fileName = `${Date.now()}.${fileExt}`;
-          const filePath = `${user.id}/${fileName}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from('payment-receipts')
-            .upload(filePath, paymentReceipt);
-
-          if (uploadError) throw uploadError;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('payment-receipts')
-            .getPublicUrl(filePath);
-
-          receiptUrl = publicUrl;
-        } catch (storageError) {
-          console.error('Storage error:', storageError);
-          // Continue without receipt - user can send via WhatsApp
-          toast.info('يمكنك إرسال وصل الدفع عبر واتساب: +964 775 326 9645');
-        }
-      }
-
-      // Create order
+      // Create order without receipt
       const orderData: any = {
         user_id: user.id,
         content_file_id: selectedFile.id,
@@ -128,25 +102,22 @@ const Shop = () => {
         department,
         phone,
         notes,
-        payment_receipt_url: receiptUrl,
+        payment_receipt_url: '',
         delivery_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'قيد المراجعة'
       };
 
-      const { error: orderError } = await supabase
+      const { data: orderResult, error: orderError } = await supabase
         .from('orders')
-        .insert(orderData);
+        .insert(orderData)
+        .select('order_number')
+        .single();
 
       if (orderError) throw orderError;
 
-      toast.success('تم إرسال طلبك بنجاح! سيتم التواصل معك قريباً');
-      setBookingDialogOpen(false);
-      resetForm();
-      
-      // Show contact info
-      setTimeout(() => {
-        toast.info('يمكنك أيضاً التواصل عبر تيليجرام أو واتساب: +964 775 326 9645');
-      }, 1000);
+      setOrderNumber(orderResult.order_number || '');
+      setOrderSuccess(true);
+      toast.success('تم إرسال طلبك بنجاح!');
 
     } catch (error: any) {
       console.error('Error submitting booking:', error);
@@ -186,8 +157,9 @@ const Shop = () => {
     setDepartment('');
     setPhone('');
     setNotes('');
-    setPaymentReceipt(null);
     setSelectedFile(null);
+    setOrderSuccess(false);
+    setOrderNumber('');
   };
 
   const getContentTypeLabel = (type: string) => {
@@ -294,7 +266,59 @@ const Shop = () => {
                         <DialogHeader>
                           <DialogTitle>حجز: {file.title}</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleBooking} className="space-y-4 mt-4">
+                        
+                        {orderSuccess ? (
+                          <div className="space-y-4 py-8">
+                            <div className="text-center">
+                              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                              <h3 className="text-xl font-bold mb-2">تم إرسال طلبك بنجاح!</h3>
+                              <p className="text-lg font-medium text-primary mb-4">
+                                رقم الطلب: {orderNumber}
+                              </p>
+                              <p className="text-muted-foreground mb-6">
+                                الآن أرسل وصل الدفع لتأكيد الطلب
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <a
+                                href={`https://wa.me/964775326XXXX?text=رقم الطلب: ${orderNumber}%0Aأرسل وصل الدفع`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 p-4 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+                              >
+                                <MessageCircle className="h-5 w-5" />
+                                واتساب
+                              </a>
+                              <a
+                                href="https://t.me/Univers_research"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 p-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+                              >
+                                <MessageCircle className="h-5 w-5" />
+                                تيليجرام
+                              </a>
+                            </div>
+
+                            <div className="text-center pt-4">
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setBookingDialogOpen(false);
+                                  resetForm();
+                                }}
+                              >
+                                إغلاق
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleBooking} className="space-y-4 mt-4">
                           <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
                             <p className="text-lg font-bold text-center">
                               السعر: {formatPrice(file.price)}
@@ -358,39 +382,28 @@ const Shop = () => {
                             />
                           </div>
 
-                          <div>
-                            <Label>رفع وصل الدفع (اختياري)</Label>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => setPaymentReceipt(e.target.files?.[0] || null)}
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">
-                              أو أرسل وصل الدفع عبر واتساب/تيليجرام
-                            </p>
-                          </div>
-
                           <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
                             <p className="text-sm font-medium mb-2 flex items-center gap-2">
                               <MessageCircle className="h-4 w-4" />
                               معلومات الدفع
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              يمكنك التواصل وإرسال الوصل أيضاً عبر:
+                            <p className="text-sm text-muted-foreground mb-2">
+                              بعد إرسال الطلب، سيظهر رقم الطلب وأزرار لإرسال وصل الدفع
                             </p>
-                            <p className="text-sm font-medium mt-2">
+                            <p className="text-sm font-medium">
                               📱 تيليجرام / واتساب: <span dir="ltr">+964 775 326 9645</span>
                             </p>
                           </div>
 
-                          <Button
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-primary to-secondary"
-                            disabled={submitting}
-                          >
-                            {submitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
-                          </Button>
-                        </form>
+                            <Button
+                              type="submit"
+                              className="w-full bg-gradient-to-r from-primary to-secondary"
+                              disabled={submitting}
+                            >
+                              {submitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                            </Button>
+                          </form>
+                        )}
                       </DialogContent>
                     </Dialog>
                   )}
