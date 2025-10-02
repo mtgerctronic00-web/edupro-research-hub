@@ -69,11 +69,13 @@ export type Database = {
         Row: {
           admin_notes: string | null
           college: string
+          content_file_id: string | null
           created_at: string
           delivery_date: string
           department: string
           full_name: string
           id: string
+          order_number: string | null
           payment_receipt_url: string
           rejection_reason: string | null
           service_type: Database["public"]["Enums"]["service_type"]
@@ -86,11 +88,13 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           college: string
+          content_file_id?: string | null
           created_at?: string
           delivery_date: string
           department: string
           full_name: string
           id?: string
+          order_number?: string | null
           payment_receipt_url: string
           rejection_reason?: string | null
           service_type: Database["public"]["Enums"]["service_type"]
@@ -103,11 +107,13 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           college?: string
+          content_file_id?: string | null
           created_at?: string
           delivery_date?: string
           department?: string
           full_name?: string
           id?: string
+          order_number?: string | null
           payment_receipt_url?: string
           rejection_reason?: string | null
           service_type?: Database["public"]["Enums"]["service_type"]
@@ -117,7 +123,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_content_file_id_fkey"
+            columns: ["content_file_id"]
+            isOneToOne: false
+            referencedRelation: "content_files"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -145,6 +159,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
