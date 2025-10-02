@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen } from "lucide-react";
+import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen, Users, UserCog, Search } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
@@ -37,6 +37,9 @@ const AdminPanel = () => {
     price: 0,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +82,7 @@ const AdminPanel = () => {
         setIsAdmin(true);
         fetchOrders();
         fetchContentFiles();
+        fetchUsers();
       } else {
         setIsAdmin(false);
         navigate("/");
@@ -267,6 +271,68 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) throw usersError;
+
+      const usersWithDetails = await Promise.all(
+        usersData.users.map(async (user) => {
+          const { data: roles } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", user.id);
+
+          const { count: ordersCount } = await supabase
+            .from("orders")
+            .select("*", { count: "exact", head: true })
+            .eq("user_id", user.id);
+
+          return {
+            id: user.id,
+            email: user.email,
+            created_at: user.created_at,
+            roles: roles?.map((r) => r.role) || [],
+            ordersCount: ordersCount || 0,
+          };
+        })
+      );
+
+      setUsers(usersWithDetails);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  const toggleUserRole = async (userId: string, role: string, shouldAdd: boolean) => {
+    try {
+      if (shouldAdd) {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: role as "admin" | "student" });
+        if (error) throw error;
+        toast.success(`تم إضافة دور ${role} للمستخدم`);
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", userId)
+          .eq("role", role as "admin" | "student");
+        if (error) throw error;
+        toast.success(`تم إزالة دور ${role} من المستخدم`);
+      }
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || "حدث خطأ");
+    }
+  };
+
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = roleFilter === "all" || user.roles.includes(roleFilter);
+    return matchesSearch && matchesRole;
+  });
+
   if (!user || !isAdmin) {
     return null;
   }
@@ -282,7 +348,7 @@ const AdminPanel = () => {
 
       <div className="p-8">
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="orders">
               <FileText className="h-4 w-4 ml-2" />
               إدارة الطلبات
@@ -290,6 +356,10 @@ const AdminPanel = () => {
             <TabsTrigger value="content">
               <FolderOpen className="h-4 w-4 ml-2" />
               إدارة المحتوى
+            </TabsTrigger>
+            <TabsTrigger value="users">
+              <Users className="h-4 w-4 ml-2" />
+              إدارة المستخدمين
             </TabsTrigger>
           </TabsList>
 
@@ -674,6 +744,92 @@ const AdminPanel = () => {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users">
+            <div className="space-y-6">
+              {/* Search and Filter */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="ابحث عن مستخدم بالبريد الإلكتروني..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-10"
+                  />
+                </div>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="تصفية حسب الدور" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع المستخدمين</SelectItem>
+                    <SelectItem value="admin">أدمن</SelectItem>
+                    <SelectItem value="student">طالب</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Users List */}
+              {filteredUsers.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-bold mb-2">لا توجد نتائج</h3>
+                  <p className="text-muted-foreground">جرب تغيير معايير البحث</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {filteredUsers.map((user) => (
+                    <Card key={user.id} className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+                            <Users className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg">{user.email}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              انضم في {format(new Date(user.created_at), "d MMM yyyy", { locale: ar })}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="gap-1">
+                          <FileText className="h-3 w-3" />
+                          {user.ordersCount} طلب
+                        </Badge>
+                      </div>
+
+                      {/* Roles Section */}
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-muted-foreground">الأدوار:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {["admin", "student"].map((role) => {
+                            const hasRole = user.roles.includes(role);
+                            return (
+                              <Button
+                                key={role}
+                                size="sm"
+                                variant={hasRole ? "default" : "outline"}
+                                onClick={() => toggleUserRole(user.id, role, !hasRole)}
+                                className="gap-2"
+                              >
+                                <UserCog className="h-4 w-4" />
+                                {role === "admin" ? "أدمن" : "طالب"}
+                                {hasRole && (
+                                  <XCircle className="h-3 w-3" />
+                                )}
+                              </Button>
+                            );
+                          })}
                         </div>
                       </div>
                     </Card>
