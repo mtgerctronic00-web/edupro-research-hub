@@ -97,6 +97,17 @@ const Research = () => {
     }
   };
 
+  const convertDriveLink = (url: string) => {
+    // Convert Google Drive view link to preview link
+    if (url.includes('drive.google.com/file/d/')) {
+      const fileIdMatch = url.match(/\/d\/([^\/]+)/);
+      if (fileIdMatch) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+      }
+    }
+    return url;
+  };
+
   const handleView = async (research: ContentFile) => {
     try {
       await supabase
@@ -104,10 +115,12 @@ const Research = () => {
         .update({ views_count: research.views_count + 1 })
         .eq('id', research.id);
 
-      window.open(research.file_url, '_blank');
+      const viewUrl = convertDriveLink(research.file_url);
+      window.open(viewUrl, '_blank');
       fetchResearches();
     } catch (error) {
       console.error('Error viewing file:', error);
+      toast.error('فشل فتح المعاينة');
     }
   };
 

@@ -62,6 +62,17 @@ const FreeResources = () => {
     }
   };
 
+  const convertDriveLink = (url: string) => {
+    // Convert Google Drive view link to direct download/preview link
+    if (url.includes('drive.google.com/file/d/')) {
+      const fileIdMatch = url.match(/\/d\/([^\/]+)/);
+      if (fileIdMatch) {
+        return `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+      }
+    }
+    return url;
+  };
+
   const handleDownload = async (file: ContentFile) => {
     if (!user) {
       toast.error('يرجى تسجيل الدخول للتحميل');
@@ -75,7 +86,8 @@ const FreeResources = () => {
         .update({ downloads_count: file.downloads_count + 1 })
         .eq('id', file.id);
 
-      window.open(file.file_url, '_blank');
+      const downloadUrl = convertDriveLink(file.file_url);
+      window.open(downloadUrl, '_blank');
       toast.success('جاري التحميل...');
       fetchFiles();
     } catch (error) {
