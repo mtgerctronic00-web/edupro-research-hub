@@ -740,13 +740,13 @@ const AdminPanel = () => {
                                 <select
                                   className="w-full p-2 border rounded"
                                   onChange={(e) => {
-                                    if (e.target.value === 'تم التسليم') {
-                                      updateOrderStatus(order.id, 'تم التسليم');
+                                    if (e.target.value === 'مكتمل') {
+                                      updateOrderStatus(order.id, 'مكتمل');
                                     }
                                   }}
                                 >
                                   <option value="">اختر...</option>
-                                  <option value="تم التسليم">تم التسليم</option>
+                                  <option value="مكتمل">مكتمل</option>
                                 </select>
                               </div>
                               <div>
