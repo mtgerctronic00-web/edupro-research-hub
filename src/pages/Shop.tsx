@@ -100,8 +100,8 @@ const Shop = () => {
       // Upload payment receipt if exists
       if (paymentReceipt) {
         const fileExt = paymentReceipt.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `receipts/${fileName}`;
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('payment-receipts')
