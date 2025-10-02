@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield, Bell, CreditCard } from "lucide-react";
+import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield, Bell, CreditCard, HeadphonesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,6 +130,7 @@ const Sidebar = () => {
         { name: "طلباتي", path: "/my-orders", icon: User },
         { name: "الإشعارات", path: "/notifications", icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
         { name: "معلومات الدفع", path: "/payment-info", icon: CreditCard },
+        { name: "الدعم", path: "/support", icon: HeadphonesIcon },
         { name: "البحوث", path: "/research", icon: FileText },
         { name: "السمنارات", path: "/seminars", icon: Presentation },
         { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
