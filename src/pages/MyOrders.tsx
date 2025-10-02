@@ -120,6 +120,7 @@ const MyOrders = () => {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <div>
+                      <p className="text-xs text-muted-foreground mb-1">رقم الطلب: {order.order_number || 'غير متوفر'}</p>
                       <h3 className="font-bold text-lg">{order.title}</h3>
                       <p className="text-sm text-muted-foreground">
                         {order.service_type} - {order.university}
