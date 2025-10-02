@@ -2,6 +2,7 @@ import AppLayout from "@/components/AppLayout";
 import HeroSlider from "@/components/HeroSlider";
 import ServiceCard from "@/components/ServiceCard";
 import { FileText, Presentation, BookOpen, Briefcase, Star, Users, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const services = [
@@ -122,12 +123,12 @@ const Index = () => {
 
         {/* Admin Setup Link (Hidden after first admin) */}
         <div className="text-center">
-          <a
-            href="/setup-admin"
+          <Link
+            to="/setup-admin"
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             إعداد صلاحيات الأدمن
-          </a>
+          </Link>
         </div>
       </div>
     </AppLayout>
