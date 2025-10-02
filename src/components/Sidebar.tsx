@@ -21,10 +21,13 @@ const Sidebar = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
       if (session?.user) {
-        await checkAdminRole(session.user.id);
+        // Defer DB calls to avoid deadlocks during auth events
+        setTimeout(() => {
+          if (session?.user) checkAdminRole(session.user.id);
+        }, 0);
       } else {
         setIsAdmin(false);
       }
@@ -64,8 +67,6 @@ const Sidebar = () => {
       toast.success("تم تسجيل الخروج بنجاح");
       
       navigate("/auth", { replace: true });
-      // Ensure UI resets completely
-      setTimeout(() => window.location.reload(), 50);
     } catch (error: any) {
       console.error("Logout error:", error);
       toast.error("حدث خطأ أثناء تسجيل الخروج");

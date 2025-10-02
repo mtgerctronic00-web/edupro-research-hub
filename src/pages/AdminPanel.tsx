@@ -34,12 +34,15 @@ const AdminPanel = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
       } else {
         setUser(session.user);
-        await checkAdminRole(session.user.id);
+        // Defer DB access to avoid recursion/deadlocks during auth event
+        setTimeout(() => {
+          if (session?.user) checkAdminRole(session.user.id);
+        }, 0);
       }
     });
 
