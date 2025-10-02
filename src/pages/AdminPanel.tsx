@@ -338,7 +338,7 @@ const AdminPanel = () => {
   const stats = {
     totalOrders: orders.length,
     pendingOrders: orders.filter(o => o.status === "قيد المراجعة").length,
-    inProgressOrders: orders.filter(o => o.status === "قيد التنفيذ").length,
+    inProgressOrders: orders.filter(o => o.status === "مؤكد - جاري التنفيذ").length,
     completedOrders: orders.filter(o => o.status === "مكتمل").length,
     totalUsers: users.length,
     adminUsers: users.filter(u => u.roles.includes("admin")).length,
@@ -347,7 +347,7 @@ const AdminPanel = () => {
   // Orders by status for pie chart
   const ordersByStatus = [
     { name: "قيد المراجعة", value: stats.pendingOrders, color: "#f59e0b" },
-    { name: "قيد التنفيذ", value: stats.inProgressOrders, color: "#3b82f6" },
+    { name: "مؤكد - جاري التنفيذ", value: stats.inProgressOrders, color: "#3b82f6" },
     { name: "مكتمل", value: stats.completedOrders, color: "#10b981" },
     { name: "مرفوض", value: orders.filter(o => o.status === "مرفوض").length, color: "#ef4444" },
   ];
@@ -430,7 +430,7 @@ const AdminPanel = () => {
                   </div>
                   <div className="mt-4 flex gap-4 text-sm">
                     <span className="text-orange-500">⏳ {stats.pendingOrders} قيد المراجعة</span>
-                    <span className="text-blue-500">🔄 {stats.inProgressOrders} قيد التنفيذ</span>
+                    <span className="text-blue-500">🔄 {stats.inProgressOrders} جاري التنفيذ</span>
                   </div>
                 </Card>
 
@@ -640,7 +640,7 @@ const AdminPanel = () => {
                                 </div>
                                 <Button
                                   className="w-full bg-green-500 hover:bg-green-600"
-                                  onClick={() => updateOrderStatus(order.id, 'قيد التنفيذ', adminNotes)}
+                                  onClick={() => updateOrderStatus(order.id, 'مؤكد - جاري التنفيذ', adminNotes)}
                                 >
                                   تأكيد القبول
                                 </Button>
@@ -686,7 +686,7 @@ const AdminPanel = () => {
                         </>
                       )}
 
-                      {order.status === 'قيد التنفيذ' && (
+                      {order.status === 'مؤكد - جاري التنفيذ' && (
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
