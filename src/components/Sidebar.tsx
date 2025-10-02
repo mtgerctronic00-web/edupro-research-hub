@@ -1,17 +1,78 @@
 import { Link, useLocation } from "react-router-dom";
-import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook } from "lucide-react";
+import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 const Sidebar = () => {
   const location = useLocation();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const navItems = [
-    { name: "الرئيسية", path: "/", icon: Home },
-    { name: "البحوث", path: "/research", icon: FileText },
-    { name: "السمنارات", path: "/seminars", icon: Presentation },
-    { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
-    { name: "أعمالي", path: "/my-works", icon: Briefcase },
-  ];
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        await checkAdminRole(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        await checkAdminRole(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error("Error checking admin role:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("تم تسجيل الخروج بنجاح");
+    } catch (error) {
+      toast.error("حدث خطأ أثناء تسجيل الخروج");
+    }
+  };
+
+  const navItems = user
+    ? [
+        { name: "الرئيسية", path: "/", icon: Home },
+        { name: "حجز خدمة", path: "/booking", icon: ClipboardList },
+        { name: "طلباتي", path: "/my-orders", icon: User },
+        { name: "البحوث", path: "/research", icon: FileText },
+        { name: "السمنارات", path: "/seminars", icon: Presentation },
+        { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
+        { name: "أعمالي", path: "/my-works", icon: Briefcase },
+        ...(isAdmin ? [{ name: "لوحة الأدمن", path: "/admin", icon: Shield }] : []),
+      ]
+    : [
+        { name: "الرئيسية", path: "/", icon: Home },
+        { name: "البحوث", path: "/research", icon: FileText },
+        { name: "السمنارات", path: "/seminars", icon: Presentation },
+        { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
+        { name: "أعمالي", path: "/my-works", icon: Briefcase },
+      ];
 
   const socialLinks = [
     { icon: Send, href: "https://t.me/Univers_research", label: "تيليجرام" },
@@ -66,10 +127,34 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Social Links */}
-      <div className="p-4 border-t border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">تواصل معنا</p>
-        <div className="flex gap-2">
+      {/* Social Links & Auth */}
+      <div className="p-4 border-t border-border space-y-3">
+        {user ? (
+          <>
+            <div className="px-2 mb-3">
+              <p className="text-xs text-muted-foreground mb-1">مرحباً</p>
+              <p className="text-sm font-medium truncate">{user.email}</p>
+            </div>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="w-full justify-start gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              تسجيل الخروج
+            </Button>
+          </>
+        ) : (
+          <Link to="/auth">
+            <Button className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+              تسجيل الدخول
+            </Button>
+          </Link>
+        )}
+
+        <div className="pt-3 border-t border-border">
+          <p className="text-xs text-muted-foreground mb-3 font-medium">تواصل معنا</p>
+          <div className="flex gap-2">
           {socialLinks.map((social) => {
             const Icon = social.icon;
             return (
@@ -85,6 +170,7 @@ const Sidebar = () => {
               </a>
             );
           })}
+          </div>
         </div>
       </div>
     </aside>
