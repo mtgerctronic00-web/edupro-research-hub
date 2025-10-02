@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen, Users, UserCog, Search, BarChart3, TrendingUp, DollarSign } from "lucide-react";
+import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen, Users, UserCog, Search, BarChart3, TrendingUp, DollarSign, Bell, Send } from "lucide-react";
 import { format, subDays, startOfDay } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
@@ -43,6 +43,13 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [notificationData, setNotificationData] = useState({
+    title: "",
+    message: "",
+    type: "info" as "info" | "success" | "error",
+  });
+  const [sendingNotification, setSendingNotification] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -373,6 +380,38 @@ const AdminPanel = () => {
     return matchesSearch && matchesRole;
   });
 
+  const handleSendGeneralNotification = async () => {
+    if (!notificationData.title || !notificationData.message) {
+      toast.error("يرجى تعبئة جميع الحقول");
+      return;
+    }
+
+    setSendingNotification(true);
+    try {
+      const { error } = await supabase
+        .from("notifications")
+        .insert({
+          title: notificationData.title,
+          message: notificationData.message,
+          type: notificationData.type,
+          is_general: true,
+          user_id: null,
+          read: false,
+        });
+
+      if (error) throw error;
+
+      toast.success("تم إرسال الإشعار لجميع المستخدمين بنجاح!");
+      setNotificationDialogOpen(false);
+      setNotificationData({ title: "", message: "", type: "info" });
+    } catch (error: any) {
+      console.error("Error sending notification:", error);
+      toast.error(error.message || "حدث خطأ أثناء إرسال الإشعار");
+    } finally {
+      setSendingNotification(false);
+    }
+  };
+
   // Statistics calculations
   const stats = {
     totalOrders: orders.length,
@@ -433,7 +472,7 @@ const AdminPanel = () => {
 
       <div className="p-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full max-w-3xl grid-cols-4">
+          <TabsList className="grid w-full max-w-4xl grid-cols-5">
             <TabsTrigger value="dashboard">
               <BarChart3 className="h-4 w-4 ml-2" />
               الإحصائيات
@@ -449,6 +488,10 @@ const AdminPanel = () => {
             <TabsTrigger value="users">
               <Users className="h-4 w-4 ml-2" />
               المستخدمين
+            </TabsTrigger>
+            <TabsTrigger value="notifications">
+              <Bell className="h-4 w-4 ml-2" />
+              الإشعارات
             </TabsTrigger>
           </TabsList>
 
@@ -1066,6 +1109,115 @@ const AdminPanel = () => {
                   ))}
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">إرسال إشعارات عامة</h2>
+                  <p className="text-muted-foreground mt-1">
+                    إرسال إشعارات لجميع المستخدمين المسجلين
+                  </p>
+                </div>
+                <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-gradient-to-r from-primary to-secondary">
+                      <Send className="h-4 w-4 ml-2" />
+                      إرسال إشعار عام
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>إرسال إشعار عام لجميع المستخدمين</DialogTitle>
+                      <DialogDescription>
+                        سيتم إرسال هذا الإشعار لجميع المستخدمين المسجلين في النظام
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>عنوان الإشعار</Label>
+                        <Input
+                          placeholder="أدخل عنوان الإشعار"
+                          value={notificationData.title}
+                          onChange={(e) =>
+                            setNotificationData({ ...notificationData, title: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>نص الإشعار</Label>
+                        <Textarea
+                          placeholder="أدخل نص الإشعار"
+                          value={notificationData.message}
+                          onChange={(e) =>
+                            setNotificationData({ ...notificationData, message: e.target.value })
+                          }
+                          rows={4}
+                        />
+                      </div>
+                      <div>
+                        <Label>نوع الإشعار</Label>
+                        <Select
+                          value={notificationData.type}
+                          onValueChange={(value: "info" | "success" | "error") =>
+                            setNotificationData({ ...notificationData, type: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="info">معلومة</SelectItem>
+                            <SelectItem value="success">نجاح</SelectItem>
+                            <SelectItem value="error">تنبيه</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        className="w-full"
+                        onClick={handleSendGeneralNotification}
+                        disabled={sendingNotification}
+                      >
+                        {sendingNotification ? "جاري الإرسال..." : "إرسال الإشعار"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <Card className="p-12 text-center bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                <Bell className="h-24 w-24 mx-auto text-primary mb-6" />
+                <h3 className="text-2xl font-bold mb-4">إرسال إشعارات فورية</h3>
+                <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
+                  يمكنك إرسال إشعارات عامة لجميع المستخدمين مباشرة. سيتم عرض الإشعارات في صفحة الإشعارات لجميع المستخدمين المسجلين في النظام.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 text-right">
+                  <div className="p-4 rounded-xl bg-background">
+                    <Bell className="h-8 w-8 text-blue-500 mb-2" />
+                    <h4 className="font-bold mb-1">إشعارات فورية</h4>
+                    <p className="text-sm text-muted-foreground">
+                      تصل للمستخدمين بشكل فوري
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background">
+                    <Users className="h-8 w-8 text-green-500 mb-2" />
+                    <h4 className="font-bold mb-1">لجميع المستخدمين</h4>
+                    <p className="text-sm text-muted-foreground">
+                      يستلمها كل المسجلين
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-background">
+                    <CheckCircle className="h-8 w-8 text-purple-500 mb-2" />
+                    <h4 className="font-bold mb-1">سهلة الإرسال</h4>
+                    <p className="text-sm text-muted-foreground">
+                      بضغطة واحدة فقط
+                    </p>
+                  </div>
+                </div>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>

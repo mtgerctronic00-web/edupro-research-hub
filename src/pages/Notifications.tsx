@@ -72,7 +72,7 @@ const Notifications = () => {
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", userId)
+        .or(`user_id.eq.${userId},is_general.eq.true`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -84,8 +84,15 @@ const Notifications = () => {
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (notificationId: string, isGeneral: boolean) => {
     try {
+      if (isGeneral) {
+        // For general notifications, we can't mark as read globally
+        // Just update locally for this user session
+        toast.info("الإشعارات العامة لا يمكن تعليمها كمقروءة");
+        return;
+      }
+      
       const { error } = await supabase
         .from("notifications")
         .update({ read: true })
@@ -114,8 +121,13 @@ const Notifications = () => {
     }
   };
 
-  const deleteNotification = async (notificationId: string) => {
+  const deleteNotification = async (notificationId: string, isGeneral: boolean) => {
     try {
+      if (isGeneral) {
+        toast.error("لا يمكن حذف الإشعارات العامة");
+        return;
+      }
+      
       const { error } = await supabase
         .from("notifications")
         .delete()
@@ -199,12 +211,19 @@ const Notifications = () => {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="font-bold text-lg">{notification.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-lg">{notification.title}</h3>
+                          {notification.is_general && (
+                            <Badge variant="secondary" className="text-xs">
+                              إشعار عام
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           {notification.message}
                         </p>
                       </div>
-                      {!notification.read && (
+                      {!notification.read && !notification.is_general && (
                         <Badge variant="default" className="mr-2">
                           جديد
                         </Badge>
@@ -228,22 +247,24 @@ const Notifications = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {!notification.read && (
+                    {!notification.read && !notification.is_general && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => markAsRead(notification.id, notification.is_general)}
                       >
                         <Check className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteNotification(notification.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!notification.is_general && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteNotification(notification.id, notification.is_general)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
