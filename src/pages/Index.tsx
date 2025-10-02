@@ -89,35 +89,45 @@ const Index = () => {
 
         {/* CTA Section */}
         <div className="rounded-3xl bg-gradient-to-br from-primary to-secondary p-12 text-center text-white animate-fade-in relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
             
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                هل تحتاج مساعدة في مشروعك؟
-              </h2>
-              <p className="text-xl mb-8 text-white/90">
-                تواصل معنا الآن وسنساعدك في تحقيق أهدافك الأكاديمية
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://t.me/Univers_research"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-8 py-3 bg-white text-primary font-semibold rounded-xl hover:bg-white/90 transition-colors"
-                >
-                  تواصل عبر تيليجرام
-                </a>
-                <a
-                  href="https://t.me/Graduation_research0"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-8 py-3 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-colors border border-white/30"
-                >
-                  انضم للقناة
-                </a>
-              </div>
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              هل تحتاج مساعدة في مشروعك؟
+            </h2>
+            <p className="text-xl mb-8 text-white/90">
+              تواصل معنا الآن وسنساعدك في تحقيق أهدافك الأكاديمية
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="https://t.me/Univers_research"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-8 py-3 bg-white text-primary font-semibold rounded-xl hover:bg-white/90 transition-colors"
+              >
+                تواصل عبر تيليجرام
+              </a>
+              <a
+                href="https://t.me/Graduation_research0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-8 py-3 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-colors border border-white/30"
+              >
+                انضم للقناة
+              </a>
             </div>
+          </div>
+        </div>
+
+        {/* Admin Setup Link (Hidden after first admin) */}
+        <div className="text-center">
+          <a
+            href="/setup-admin"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            إعداد صلاحيات الأدمن
+          </a>
         </div>
       </div>
     </AppLayout>
