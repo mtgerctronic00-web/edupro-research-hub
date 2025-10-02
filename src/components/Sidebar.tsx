@@ -78,6 +78,7 @@ const Sidebar = () => {
   const navItems = user
     ? [
         { name: "الرئيسية", path: "/", icon: Home },
+        { name: "المتجر", path: "/shop", icon: ClipboardList },
         { name: "حجز خدمة", path: "/booking", icon: ClipboardList },
         { name: "طلباتي", path: "/my-orders", icon: User },
         { name: "البحوث", path: "/research", icon: FileText },
@@ -88,6 +89,7 @@ const Sidebar = () => {
       ]
     : [
         { name: "الرئيسية", path: "/", icon: Home },
+        { name: "المتجر", path: "/shop", icon: ClipboardList },
         { name: "البحوث", path: "/research", icon: FileText },
         { name: "السمنارات", path: "/seminars", icon: Presentation },
         { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
