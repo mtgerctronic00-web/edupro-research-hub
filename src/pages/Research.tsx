@@ -1,5 +1,5 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { FileText, Download, Eye, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,26 +42,18 @@ const Research = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <AppLayout>
+      <PageHeader
+        icon={FileText}
+        title="بحوث التخرج"
+        description="بحوث تخرج احترافية متخصصة في التحليلات المرضية"
+        gradient="from-primary to-secondary"
+      />
       
-      <main className="pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-primary to-secondary mb-6">
-              <FileText className="h-12 w-12 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              بحوث التخرج
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              بحوث تخرج احترافية متخصصة في التحليلات المرضية
-            </p>
-          </div>
+      <div className="p-8 space-y-8">
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+        {/* Search Bar */}
+        <div className="animate-fade-in">
             <div className="relative">
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -69,13 +61,13 @@ const Research = () => {
                 placeholder="ابحث عن بحث معين..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-12 h-12 text-lg"
+                className="pr-12 h-14 text-lg rounded-xl"
               />
             </div>
-          </div>
+        </div>
 
-          {/* Research Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Research Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResearches.map((research, index) => (
               <Card
                 key={research.id}
@@ -124,20 +116,17 @@ const Research = () => {
                 </div>
               </Card>
             ))}
-          </div>
-
-          {filteredResearches.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
-                لم يتم العثور على نتائج للبحث
-              </p>
-            </div>
-          )}
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        {filteredResearches.length === 0 && (
+          <div className="text-center py-12 bg-muted/30 rounded-2xl">
+            <p className="text-muted-foreground text-lg">
+              لم يتم العثور على نتائج للبحث
+            </p>
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 };
 

@@ -1,8 +1,7 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
 import HeroSlider from "@/components/HeroSlider";
 import ServiceCard from "@/components/ServiceCard";
-import { FileText, Presentation, BookOpen, Briefcase, Star, Users } from "lucide-react";
+import { FileText, Presentation, BookOpen, Briefcase, Star, Users, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const services = [
@@ -43,18 +42,13 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="pt-16">
+    <AppLayout>
+      <div className="p-8 space-y-8">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-12">
-          <HeroSlider />
-        </section>
+        <HeroSlider />
 
         {/* Stats Section */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
@@ -73,32 +67,28 @@ const Index = () => {
                 </div>
               );
             })}
-          </div>
-        </section>
+        </div>
 
         {/* Services Section */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">
-              خدماتنا
-            </h2>
-            <p className="text-muted-foreground text-lg animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              نقدم مجموعة شاملة من الخدمات التعليمية الاحترافية
-            </p>
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-secondary">
+              <TrendingUp className="h-5 w-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold">الخدمات المتاحة</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {services.map((service, index) => (
               <div key={index} style={{ animationDelay: `${index * 0.1}s` }}>
                 <ServiceCard {...service} />
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
         {/* CTA Section */}
-        <section className="container mx-auto px-4 py-16">
-          <div className="rounded-3xl bg-gradient-to-br from-primary to-secondary p-12 text-center text-white animate-fade-in relative overflow-hidden">
+        <div className="rounded-3xl bg-gradient-to-br from-primary to-secondary p-12 text-center text-white animate-fade-in relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
             
@@ -128,12 +118,9 @@ const Index = () => {
                 </a>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
+        </div>
+      </div>
+    </AppLayout>
   );
 };
 

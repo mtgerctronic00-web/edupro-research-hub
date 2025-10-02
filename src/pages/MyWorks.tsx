@@ -1,5 +1,5 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { Briefcase, Eye } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,26 +38,17 @@ const MyWorks = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <AppLayout>
+      <PageHeader
+        icon={Briefcase}
+        title="أعمالي السابقة"
+        description="معرض الأعمال والمشاريع المنجزة"
+        gradient="from-primary to-secondary"
+      />
       
-      <main className="pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-primary to-secondary mb-6">
-              <Briefcase className="h-12 w-12 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              أعمالي السابقة
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              معرض الأعمال والمشاريع المنجزة
-            </p>
-          </div>
-
-          {/* Works Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="p-8">
+        {/* Works Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {works.map((work, index) => (
               <Card
                 key={work.id}
@@ -94,12 +85,9 @@ const MyWorks = () => {
                 </div>
               </Card>
             ))}
-          </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

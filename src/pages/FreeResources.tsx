@@ -1,5 +1,5 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { BookOpen, Download, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,40 +42,31 @@ const FreeResources = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <AppLayout>
+      <PageHeader
+        icon={BookOpen}
+        title="الملفات المجانية"
+        description="مراجع ومقالات علمية متاحة للتحميل المجاني"
+        gradient="from-accent to-primary"
+      />
       
-      <main className="pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-accent to-primary mb-6">
-              <BookOpen className="h-12 w-12 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              الملفات المجانية
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              مراجع ومقالات علمية متاحة للتحميل المجاني
-            </p>
+      <div className="p-8 space-y-8">
+        {/* Search Bar */}
+        <div className="animate-fade-in">
+          <div className="relative">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="ابحث عن ملف..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-12 h-14 text-lg rounded-xl"
+            />
           </div>
+        </div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <div className="relative">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="ابحث عن ملف..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-12 h-12 text-lg"
-              />
-            </div>
-          </div>
-
-          {/* Resources Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Resources Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResources.map((resource, index) => (
               <Card
                 key={resource.id}
@@ -113,20 +104,17 @@ const FreeResources = () => {
                 </Button>
               </Card>
             ))}
-          </div>
-
-          {filteredResources.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
-                لم يتم العثور على نتائج للبحث
-              </p>
-            </div>
-          )}
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        {filteredResources.length === 0 && (
+          <div className="text-center py-12 bg-muted/30 rounded-2xl">
+            <p className="text-muted-foreground text-lg">
+              لم يتم العثور على نتائج للبحث
+            </p>
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 };
 

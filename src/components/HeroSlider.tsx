@@ -43,7 +43,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[500px] md:h-[600px] overflow-hidden rounded-2xl">
+    <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-3xl shadow-2xl">
       {slides.map((slide, index) => {
         const Icon = slide.icon;
         return (
