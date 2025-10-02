@@ -115,7 +115,13 @@ const AdminPanel = () => {
 
   const updateOrderStatus = async (orderId: string, status: string, notes?: string, rejection?: string) => {
     try {
-      const updates: any = { status };
+      // Normalize any legacy or invalid status values before updating DB
+      const normalizedStatus =
+        status === 'قيد التنفيذ' ? 'مؤكد - جاري التنفيذ' :
+        status === 'تم التسليم' ? 'مكتمل' :
+        status;
+
+      const updates: any = { status: normalizedStatus };
       if (notes) updates.admin_notes = notes;
       if (rejection) updates.rejection_reason = rejection;
 
