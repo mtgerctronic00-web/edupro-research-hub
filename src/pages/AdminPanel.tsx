@@ -12,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen, Users, UserCog, Search } from "lucide-react";
-import { format } from "date-fns";
+import { Shield, CheckCircle, XCircle, MessageSquare, Eye, FileText, Upload, Trash2, Edit, FolderOpen, Users, UserCog, Search, BarChart3, TrendingUp, DollarSign } from "lucide-react";
+import { format, subDays, startOfDay } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 
 const AdminPanel = () => {
   const [user, setUser] = useState<any>(null);
@@ -333,6 +334,51 @@ const AdminPanel = () => {
     return matchesSearch && matchesRole;
   });
 
+  // Statistics calculations
+  const stats = {
+    totalOrders: orders.length,
+    pendingOrders: orders.filter(o => o.status === "قيد المراجعة").length,
+    inProgressOrders: orders.filter(o => o.status === "قيد التنفيذ").length,
+    completedOrders: orders.filter(o => o.status === "مكتمل").length,
+    totalUsers: users.length,
+    adminUsers: users.filter(u => u.roles.includes("admin")).length,
+  };
+
+  // Orders by status for pie chart
+  const ordersByStatus = [
+    { name: "قيد المراجعة", value: stats.pendingOrders, color: "#f59e0b" },
+    { name: "قيد التنفيذ", value: stats.inProgressOrders, color: "#3b82f6" },
+    { name: "مكتمل", value: stats.completedOrders, color: "#10b981" },
+    { name: "مرفوض", value: orders.filter(o => o.status === "مرفوض").length, color: "#ef4444" },
+  ];
+
+  // Orders by service type
+  const ordersByService = orders.reduce((acc: any, order) => {
+    const existing = acc.find((item: any) => item.name === order.service_type);
+    if (existing) {
+      existing.value += 1;
+    } else {
+      acc.push({ name: order.service_type, value: 1 });
+    }
+    return acc;
+  }, []);
+
+  // Orders over time (last 7 days)
+  const ordersOverTime = Array.from({ length: 7 }, (_, i) => {
+    const date = subDays(new Date(), 6 - i);
+    const dayStart = startOfDay(date);
+    const dayOrders = orders.filter(o => {
+      const orderDate = startOfDay(new Date(o.created_at));
+      return orderDate.getTime() === dayStart.getTime();
+    });
+    return {
+      date: format(date, "MMM d", { locale: ar }),
+      orders: dayOrders.length,
+    };
+  });
+
+  const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+
   if (!user || !isAdmin) {
     return null;
   }
@@ -347,21 +393,138 @@ const AdminPanel = () => {
       />
 
       <div className="p-8">
-        <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full max-w-3xl grid-cols-4">
+            <TabsTrigger value="dashboard">
+              <BarChart3 className="h-4 w-4 ml-2" />
+              الإحصائيات
+            </TabsTrigger>
             <TabsTrigger value="orders">
               <FileText className="h-4 w-4 ml-2" />
-              إدارة الطلبات
+              الطلبات
             </TabsTrigger>
             <TabsTrigger value="content">
               <FolderOpen className="h-4 w-4 ml-2" />
-              إدارة المحتوى
+              المحتوى
             </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="h-4 w-4 ml-2" />
-              إدارة المستخدمين
+              المستخدمين
             </TabsTrigger>
           </TabsList>
+
+          {/* Dashboard Tab */}
+          <TabsContent value="dashboard">
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">إجمالي الطلبات</p>
+                      <h3 className="text-3xl font-bold">{stats.totalOrders}</h3>
+                    </div>
+                    <div className="p-3 rounded-xl bg-blue-500/20">
+                      <FileText className="h-8 w-8 text-blue-500" />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-4 text-sm">
+                    <span className="text-orange-500">⏳ {stats.pendingOrders} قيد المراجعة</span>
+                    <span className="text-blue-500">🔄 {stats.inProgressOrders} قيد التنفيذ</span>
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">الطلبات المكتملة</p>
+                      <h3 className="text-3xl font-bold">{stats.completedOrders}</h3>
+                    </div>
+                    <div className="p-3 rounded-xl bg-green-500/20">
+                      <CheckCircle className="h-8 w-8 text-green-500" />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <div className="flex items-center gap-2 text-sm text-green-600">
+                      <TrendingUp className="h-4 w-4" />
+                      <span>معدل الإنجاز {stats.totalOrders > 0 ? Math.round((stats.completedOrders / stats.totalOrders) * 100) : 0}%</span>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">المستخدمين</p>
+                      <h3 className="text-3xl font-bold">{stats.totalUsers}</h3>
+                    </div>
+                    <div className="p-3 rounded-xl bg-purple-500/20">
+                      <Users className="h-8 w-8 text-purple-500" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-muted-foreground">
+                    <span>👑 {stats.adminUsers} أدمن</span>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Orders by Status */}
+                <Card className="p-6">
+                  <h3 className="font-bold text-lg mb-6">توزيع الطلبات حسب الحالة</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={ordersByStatus}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {ordersByStatus.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </Card>
+
+                {/* Orders by Service Type */}
+                <Card className="p-6">
+                  <h3 className="font-bold text-lg mb-6">الطلبات حسب نوع الخدمة</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={ordersByService}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="hsl(var(--primary))" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Card>
+              </div>
+
+              {/* Orders Over Time */}
+              <Card className="p-6">
+                <h3 className="font-bold text-lg mb-6">الطلبات خلال آخر 7 أيام</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={ordersOverTime}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="orders" stroke="hsl(var(--primary))" strokeWidth={2} name="عدد الطلبات" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+            </div>
+          </TabsContent>
 
           {/* Orders Tab */}
           <TabsContent value="orders">
