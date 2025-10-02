@@ -28,6 +28,8 @@ const BookingPage = () => {
     serviceType: "",
     title: "",
     deliveryDate: "",
+    phone: "",
+    notes: "",
   });
 
   useEffect(() => {
@@ -71,6 +73,8 @@ const BookingPage = () => {
         service_type: formData.serviceType as Database["public"]["Enums"]["service_type"],
         title: formData.title,
         delivery_date: formData.deliveryDate,
+        phone: formData.phone,
+        notes: formData.notes,
         payment_receipt_url: '',
         status: 'قيد المراجعة'
       }).select('order_number').single();
@@ -159,13 +163,24 @@ const BookingPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="fullName">الاسم الثلاثي *</Label>
+                <Label htmlFor="fullName">الاسم الكامل *</Label>
                 <Input
                   id="fullName"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   required
-                  placeholder="أدخل اسمك الثلاثي"
+                  placeholder="أدخل اسمك الكامل"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="phone">رقم الهاتف *</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required
+                  placeholder="+964 7XX XXX XXXX"
                 />
               </div>
 
@@ -247,6 +262,32 @@ const BookingPage = () => {
                 placeholder="اكتب عنوان البحث أو الموضوع المطلوب"
                 rows={3}
               />
+            </div>
+
+            <div>
+              <Label htmlFor="notes">ملاحظات إضافية</Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="أي ملاحظات أو متطلبات خاصة..."
+                rows={3}
+              />
+            </div>
+
+            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                معلومات الدفع
+              </p>
+              <p className="text-sm text-muted-foreground mb-2">
+                بعد إرسال الطلب، سيظهر رقم الطلب وأزرار لإرسال وصل الدفع
+              </p>
+              <p className="text-sm font-medium">
+                📱 تيليجرام / واتساب: <span dir="ltr">+964 775 326 9645</span>
+              </p>
             </div>
 
             <Button
