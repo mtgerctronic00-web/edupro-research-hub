@@ -75,6 +75,7 @@ export type Database = {
           department: string
           full_name: string
           id: string
+          notes: string | null
           order_number: string | null
           payment_receipt_url: string
           rejection_reason: string | null
@@ -94,6 +95,7 @@ export type Database = {
           department: string
           full_name: string
           id?: string
+          notes?: string | null
           order_number?: string | null
           payment_receipt_url: string
           rejection_reason?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           department?: string
           full_name?: string
           id?: string
+          notes?: string | null
           order_number?: string | null
           payment_receipt_url?: string
           rejection_reason?: string | null
