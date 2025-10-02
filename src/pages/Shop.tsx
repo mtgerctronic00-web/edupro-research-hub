@@ -87,33 +87,33 @@ const Shop = () => {
 
     if (!selectedFile) return;
 
-    // For paid content, receipt is required
-    if (selectedFile.access_type === 'paid_download' && !paymentReceipt) {
-      toast.error('يرجى رفع وصل الدفع');
-      return;
-    }
-
     setSubmitting(true);
     try {
       let receiptUrl = '';
 
-      // Upload payment receipt if exists
+      // Upload payment receipt if exists (optional - can send via WhatsApp)
       if (paymentReceipt) {
-        const fileExt = paymentReceipt.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${user.id}/${fileName}`;
+        try {
+          const fileExt = paymentReceipt.name.split('.').pop();
+          const fileName = `${Date.now()}.${fileExt}`;
+          const filePath = `${user.id}/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('payment-receipts')
-          .upload(filePath, paymentReceipt);
+          const { error: uploadError } = await supabase.storage
+            .from('payment-receipts')
+            .upload(filePath, paymentReceipt);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('payment-receipts')
-          .getPublicUrl(filePath);
+          const { data: { publicUrl } } = supabase.storage
+            .from('payment-receipts')
+            .getPublicUrl(filePath);
 
-        receiptUrl = publicUrl;
+          receiptUrl = publicUrl;
+        } catch (storageError) {
+          console.error('Storage error:', storageError);
+          // Continue without receipt - user can send via WhatsApp
+          toast.info('يمكنك إرسال وصل الدفع عبر واتساب: +964 775 326 9645');
+        }
       }
 
       // Create order
@@ -359,15 +359,14 @@ const Shop = () => {
                           </div>
 
                           <div>
-                            <Label>رفع وصل الدفع *</Label>
+                            <Label>رفع وصل الدفع (اختياري)</Label>
                             <Input
                               type="file"
                               accept="image/*"
                               onChange={(e) => setPaymentReceipt(e.target.files?.[0] || null)}
-                              required
                             />
                             <p className="text-xs text-muted-foreground mt-2">
-                              يرجى رفع صورة وصل الدفع بعد التحويل
+                              أو أرسل وصل الدفع عبر واتساب/تيليجرام
                             </p>
                           </div>
 
