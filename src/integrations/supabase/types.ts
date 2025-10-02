@@ -119,6 +119,7 @@ export type Database = {
           notes: string | null
           order_number: string | null
           payment_receipt_url: string
+          phone: string | null
           rejection_reason: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["order_status"]
@@ -139,6 +140,7 @@ export type Database = {
           notes?: string | null
           order_number?: string | null
           payment_receipt_url: string
+          phone?: string | null
           rejection_reason?: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["order_status"]
@@ -159,6 +161,7 @@ export type Database = {
           notes?: string | null
           order_number?: string | null
           payment_receipt_url?: string
+          phone?: string | null
           rejection_reason?: string | null
           service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["order_status"]
