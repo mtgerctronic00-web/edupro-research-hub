@@ -47,7 +47,7 @@ const Support = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* واتساب */}
           <a
-            href="https://wa.me/964775326XXXX"
+            href="https://wa.me/9647753269645"
             target="_blank"
             rel="noopener noreferrer"
             className="block group"
@@ -64,7 +64,7 @@ const Support = () => {
                   <p className="text-muted-foreground mb-4">تواصل معنا عبر واتساب للدعم الفوري</p>
                   <div className="flex items-center justify-center gap-2 text-lg font-medium text-green-600 group-hover:text-green-700">
                     <Phone className="h-5 w-5" />
-                    <span dir="ltr">+964 775 326 XXXX</span>
+                    <span dir="ltr">+964 775 326 9645</span>
                   </div>
                 </div>
                 <div className="mt-4 px-6 py-3 rounded-lg bg-green-500 group-hover:bg-green-600 text-white font-medium transition-colors">
