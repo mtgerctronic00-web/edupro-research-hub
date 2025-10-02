@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield } from "lucide-react";
+import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { toast } from "sonner";
 
 const Sidebar = () => {
@@ -12,12 +13,14 @@ const Sidebar = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user || null);
       if (session?.user) {
         await checkAdminRole(session.user.id);
+        fetchUnreadCount(session.user.id);
       }
     });
 
@@ -26,10 +29,14 @@ const Sidebar = () => {
       if (session?.user) {
         // Defer DB calls to avoid deadlocks during auth events
         setTimeout(() => {
-          if (session?.user) checkAdminRole(session.user.id);
+          if (session?.user) {
+            checkAdminRole(session.user.id);
+            fetchUnreadCount(session.user.id);
+          }
         }, 0);
       } else {
         setIsAdmin(false);
+        setUnreadCount(0);
       }
     });
 
@@ -50,6 +57,46 @@ const Sidebar = () => {
       console.error("Error checking admin role:", error);
     }
   };
+
+  const fetchUnreadCount = async (userId: string) => {
+    try {
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("read", false);
+
+      if (error) throw error;
+      setUnreadCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to realtime notifications
+    const channel = supabase
+      .channel('sidebar-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchUnreadCount(user.id);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -81,6 +128,7 @@ const Sidebar = () => {
         { name: "المتجر", path: "/shop", icon: ClipboardList },
         { name: "حجز خدمة", path: "/booking", icon: ClipboardList },
         { name: "طلباتي", path: "/my-orders", icon: User },
+        { name: "الإشعارات", path: "/notifications", icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
         { name: "البحوث", path: "/research", icon: FileText },
         { name: "السمنارات", path: "/seminars", icon: Presentation },
         { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
@@ -143,7 +191,12 @@ const Sidebar = () => {
                 "h-5 w-5 relative z-10 transition-transform",
                 isActive && "animate-bounce-in"
               )} />
-              <span className="font-medium relative z-10">{item.name}</span>
+              <span className="font-medium relative z-10 flex-1">{item.name}</span>
+              {item.badge && (
+                <Badge className="relative z-10 bg-red-500 hover:bg-red-600 text-white">
+                  {item.badge}
+                </Badge>
+              )}
             </Link>
           );
         })}

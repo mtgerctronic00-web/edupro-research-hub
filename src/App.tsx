@@ -14,6 +14,7 @@ import MyOrders from "./pages/MyOrders";
 import AdminPanel from "./pages/AdminPanel";
 import SetupAdmin from "./pages/SetupAdmin";
 import Shop from "./pages/Shop";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/shop" element={<Shop />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/research" element={<Research />} />
           <Route path="/seminars" element={<Seminars />} />
