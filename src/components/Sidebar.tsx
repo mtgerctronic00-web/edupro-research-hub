@@ -48,9 +48,17 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      setUser(null);
+      setIsAdmin(false);
       toast.success("تم تسجيل الخروج بنجاح");
-    } catch (error) {
+      
+      // Redirect to home after logout
+      window.location.href = "/";
+    } catch (error: any) {
+      console.error("Logout error:", error);
       toast.error("حدث خطأ أثناء تسجيل الخروج");
     }
   };
@@ -137,8 +145,8 @@ const Sidebar = () => {
             </div>
             <Button
               onClick={handleLogout}
-              variant="outline"
-              className="w-full justify-start gap-2"
+              variant="destructive"
+              className="w-full justify-start gap-2 bg-red-500 hover:bg-red-600"
             >
               <LogOut className="h-4 w-4" />
               تسجيل الخروج
