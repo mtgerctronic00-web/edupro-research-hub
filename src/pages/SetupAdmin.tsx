@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Shield, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const SetupAdmin = () => {
   const [email, setEmail] = useState("");
@@ -88,9 +89,9 @@ const SetupAdmin = () => {
         </div>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-primary hover:underline text-sm">
+          <Link to="/" className="text-primary hover:underline text-sm">
             العودة للرئيسية
-          </a>
+          </Link>
         </div>
       </Card>
     </div>
