@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -55,8 +56,8 @@ const Sidebar = () => {
       setIsAdmin(false);
       toast.success("تم تسجيل الخروج بنجاح");
       
-      // Redirect to home after logout
-      window.location.href = "/";
+      // Redirect to auth after logout
+      navigate("/auth", { replace: true });
     } catch (error: any) {
       console.error("Logout error:", error);
       toast.error("حدث خطأ أثناء تسجيل الخروج");
