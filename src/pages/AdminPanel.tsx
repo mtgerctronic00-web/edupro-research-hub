@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,6 +38,8 @@ const AdminPanel = () => {
     price: 0,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadMode, setUploadMode] = useState<"file" | "link">("file");
+  const [fileUrlInput, setFileUrlInput] = useState("");
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -149,34 +151,60 @@ const AdminPanel = () => {
   };
 
   const handleFileUpload = async () => {
-    if (!selectedFile || !fileData.title) {
+    if (!fileData.title) {
       toast.error("يرجى تعبئة جميع الحقول المطلوبة");
       return;
     }
 
     setUploadLoading(true);
     try {
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("content-files")
-        .upload(filePath, selectedFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from("content-files")
-        .getPublicUrl(filePath);
-
-      const insertData = {
+      let insertData: any = {
         ...fileData,
-        file_url: urlData.publicUrl,
-        file_name: selectedFile.name,
-        file_size: selectedFile.size,
         uploaded_by: user?.id,
       };
+
+      if (uploadMode === "file") {
+        if (!selectedFile) {
+          toast.error("يرجى اختيار ملف");
+          setUploadLoading(false);
+          return;
+        }
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("content-files")
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("content-files")
+          .getPublicUrl(filePath);
+
+        insertData = {
+          ...insertData,
+          file_url: urlData.publicUrl,
+          file_name: selectedFile.name,
+          file_size: selectedFile.size,
+        };
+      } else {
+        // Link mode
+        if (!fileUrlInput.trim()) {
+          toast.error("يرجى إدخال رابط الملف");
+          setUploadLoading(false);
+          return;
+        }
+        const url = new URL(fileUrlInput.trim());
+        const last = url.pathname.split('/').pop() || "file";
+        insertData = {
+          ...insertData,
+          file_url: fileUrlInput.trim(),
+          file_name: decodeURIComponent(last),
+          file_size: null,
+        };
+      }
 
       if (editingFile) {
         const { error } = await supabase
@@ -192,7 +220,7 @@ const AdminPanel = () => {
           .insert(insertData);
 
         if (error) throw error;
-        toast.success("تم رفع الملف بنجاح!");
+        toast.success(uploadMode === 'file' ? "تم رفع الملف بنجاح!" : "تم حفظ الرابط بنجاح!");
       }
 
       fetchContentFiles();
@@ -200,7 +228,12 @@ const AdminPanel = () => {
       resetFileForm();
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error(error.message || "حدث خطأ أثناء رفع الملف");
+      if (error?.message?.includes("Missing tenant config")) {
+        toast.error("خدمة التخزين غير مُفعّلة حالياً. تم التحويل إلى وضع إدخال الرابط.");
+        setUploadMode("link");
+      } else {
+        toast.error(error.message || "حدث خطأ أثناء رفع الملف");
+      }
     } finally {
       setUploadLoading(false);
     }
@@ -761,20 +794,48 @@ const AdminPanel = () => {
                       <DialogTitle>
                         {editingFile ? "تعديل الملف" : "رفع ملف جديد"}
                       </DialogTitle>
+                      <DialogDescription>
+                        حدد وسيلة الإضافة: رفع ملف أو لصق رابط مباشر للمحتوى.
+                      </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 mt-4">
-                      <div>
-                        <Label htmlFor="file">اختر الملف *</Label>
-                        <Input
-                          id="file"
-                          type="file"
-                          accept=".pdf,.doc,.docx,.ppt,.pptx"
-                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          الأنواع المدعومة: PDF, Word, PowerPoint
-                        </p>
+                      <div className="flex gap-2">
+                        <Button type="button" variant={uploadMode==='file' ? 'default' : 'outline'} onClick={() => setUploadMode('file')}>
+                          رفع ملف
+                        </Button>
+                        <Button type="button" variant={uploadMode==='link' ? 'default' : 'outline'} onClick={() => setUploadMode('link')}>
+                          رابط مباشر
+                        </Button>
                       </div>
+
+                      {uploadMode === 'file' ? (
+                        <div>
+                          <Label htmlFor="file">اختر الملف *</Label>
+                          <Input
+                            id="file"
+                            type="file"
+                            accept=".pdf,.doc,.docx,.ppt,.pptx"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            الأنواع المدعومة: PDF, Word, PowerPoint
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <Label htmlFor="file_url">رابط الملف *</Label>
+                          <Input
+                            id="file_url"
+                            type="url"
+                            value={fileUrlInput}
+                            onChange={(e) => setFileUrlInput(e.target.value)}
+                            placeholder="https://example.com/file.pdf"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            ألصق رابط مباشر للملف (Google Drive مباشِر أو أي استضافة عامة)
+                          </p>
+                        </div>
+                      )}
 
                       <div>
                         <Label htmlFor="title">عنوان الملف *</Label>
