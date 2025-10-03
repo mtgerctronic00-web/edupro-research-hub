@@ -3,7 +3,8 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard, QrCode, Copy, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CreditCard, QrCode, Copy, Check, Send, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import zaincashQR from "@/assets/zaincash-qr.jpg";
 
@@ -122,8 +123,65 @@ const PaymentInfo = () => {
           </CardContent>
         </Card>
 
+        {/* Send Payment Receipt */}
+        <Card className="animate-slide-up hover:shadow-2xl transition-all duration-500 group border-2 border-transparent hover:border-primary/30" style={{ animationDelay: "0.2s" }}>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 group-hover:scale-110 transition-transform duration-300">
+                <Send className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle className="group-hover:text-primary transition-colors duration-300">إرسال وصل الدفع</CardTitle>
+            </div>
+            <CardDescription>
+              أرسل صورة وصل الدفع للإدارة لتأكيد طلبك
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="w-full gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary-glow hover:to-accent shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                  <Send className="h-5 w-5" />
+                  إرسال الوصل
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>اختر طريقة الإرسال</DialogTitle>
+                  <DialogDescription>
+                    اختر التطبيق المفضل لإرسال وصل الدفع
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4 py-4">
+                  <a
+                    href="https://wa.me/9647753269645"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full gap-3 bg-green-600 hover:bg-green-700 h-14 text-base shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                      <MessageCircle className="h-6 w-6" />
+                      إرسال عبر واتساب
+                    </Button>
+                  </a>
+                  <a
+                    href="https://t.me/Univers_research"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full gap-3 bg-blue-600 hover:bg-blue-700 h-14 text-base shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                      <Send className="h-6 w-6" />
+                      إرسال عبر تليجرام
+                    </Button>
+                  </a>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+
         {/* Instructions */}
-        <Card className="animate-slide-up bg-gradient-to-br from-accent/30 via-background to-accent/20 hover:shadow-elegant transition-all duration-500 border-2 border-accent/30 hover:border-accent/50" style={{ animationDelay: "0.2s" }}>
+        <Card className="animate-slide-up bg-gradient-to-br from-accent/30 via-background to-accent/20 hover:shadow-elegant transition-all duration-500 border-2 border-accent/30 hover:border-accent/50" style={{ animationDelay: "0.3s" }}>
           <CardHeader>
             <CardTitle className="text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               تعليمات الدفع
@@ -139,7 +197,7 @@ const PaymentInfo = () => {
               <div 
                 key={index}
                 className="flex items-start gap-3 p-3 rounded-lg hover:bg-accent/20 transition-all duration-300 group/instruction cursor-default"
-                style={{ animationDelay: `${0.3 + index * 0.05}s` }}
+                style={{ animationDelay: `${0.4 + index * 0.05}s` }}
               >
                 <div className="mt-1 w-1.5 h-1.5 rounded-full bg-primary group-hover/instruction:scale-150 group-hover/instruction:bg-secondary transition-all duration-300"></div>
                 <p className="text-sm text-muted-foreground group-hover/instruction:text-foreground transition-colors duration-300">
