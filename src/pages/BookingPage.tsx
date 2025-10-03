@@ -115,13 +115,18 @@ const BookingPage = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                
-                
-              </div>
-
-              <div className="text-center pt-6">
-                <Button variant="outline" onClick={() => navigate('/my-orders')} className="px-8">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+                <Button 
+                  onClick={() => navigate('/payment-info')} 
+                  className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-8"
+                >
+                  أكمل عملية الدفع
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/my-orders')} 
+                  className="px-8"
+                >
                   عرض طلباتي
                 </Button>
               </div>
