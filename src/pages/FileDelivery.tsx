@@ -84,15 +84,15 @@ const FileDelivery = () => {
                 return (
                   <div
                     key={index}
-                    className="relative group overflow-hidden rounded-xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:scale-105"
+                    className="relative group overflow-hidden rounded-xl border border-border bg-card p-4 md:p-6 transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
                     <div className={`absolute inset-0 bg-gradient-to-br ${format.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                    <div className="relative z-10 flex flex-col items-center text-center space-y-3">
-                      <div className={`p-4 rounded-full bg-gradient-to-br ${format.color} shadow-lg`}>
-                        <Icon className="h-8 w-8 text-white" />
+                    <div className="relative z-10 flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${format.color} shadow-lg`}>
+                        <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                       </div>
-                      <h3 className="font-bold text-lg">{format.title}</h3>
-                      <p className="text-sm text-muted-foreground">{format.description}</p>
+                      <h3 className="font-bold text-base md:text-lg">{format.title}</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">{format.description}</p>
                     </div>
                   </div>
                 );
@@ -127,25 +127,25 @@ const FileDelivery = () => {
                     }`}
                   >
                     <div className={`absolute inset-0 bg-gradient-to-br ${method.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                    <div className="relative z-10 p-8 space-y-4">
+                    <div className="relative z-10 p-4 md:p-8 space-y-3 md:space-y-4">
                       <div className="flex items-center justify-between">
-                        <div className={`p-4 rounded-full bg-gradient-to-br ${method.color} shadow-lg group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-8 w-8 text-white" />
+                        <div className={`p-3 md:p-4 rounded-full bg-gradient-to-br ${method.color} shadow-lg group-hover:scale-110 transition-transform`}>
+                          <Icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                         </div>
                         {isSelected && (
-                          <Badge className="bg-green-500 hover:bg-green-600">
+                          <Badge className="bg-green-500 hover:bg-green-600 text-xs">
                             <Check className="h-3 w-3 mr-1" />
                             تم الاختيار
                           </Badge>
                         )}
                       </div>
                       <div>
-                        <h3 className="font-bold text-xl mb-2">{method.title}</h3>
-                        <p className="text-muted-foreground">{method.description}</p>
+                        <h3 className="font-bold text-lg md:text-xl mb-1 md:mb-2">{method.title}</h3>
+                        <p className="text-sm md:text-base text-muted-foreground">{method.description}</p>
                       </div>
                       <Button
                         onClick={() => handleDeliveryMethod(method.id, method.link)}
-                        className={`w-full bg-gradient-to-r ${method.color} hover:opacity-90 transition-all duration-300 group-hover:scale-105`}
+                        className={`w-full bg-gradient-to-r ${method.color} hover:opacity-90 transition-all duration-300 group-hover:scale-105 h-10 md:h-11 text-sm md:text-base`}
                       >
                         <Icon className="h-4 w-4 ml-2" />
                         استلام عبر {method.title}
@@ -160,14 +160,14 @@ const FileDelivery = () => {
 
         {/* Privacy Notice */}
         <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-full bg-accent/20 mt-1">
-                <Check className="h-5 w-5 text-accent" />
+          <CardContent className="p-4 md:p-6">
+            <div className="flex items-start gap-2 md:gap-3">
+              <div className="p-2 rounded-full bg-accent/20 mt-1 flex-shrink-0">
+                <Check className="h-4 w-4 md:h-5 md:w-5 text-accent" />
               </div>
               <div>
-                <h4 className="font-semibold text-lg mb-2">ضمان الخصوصية</h4>
-                <p className="text-muted-foreground leading-relaxed">
+                <h4 className="font-semibold text-base md:text-lg mb-1 md:mb-2">ضمان الخصوصية</h4>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   نحن نحرص على سرية معلوماتك وملفاتك. جميع الملفات يتم إرسالها بشكل خاص ومباشر لك عبر الواتساب أو التليجرام، ولا يتم مشاركتها مع أي طرف ثالث.
                 </p>
               </div>
