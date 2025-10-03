@@ -6,11 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ShoppingCart, FileText, Eye, Download, Star, MessageCircle } from "lucide-react";
+import { ShoppingCart, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface ContentFile {
@@ -248,172 +244,13 @@ const Shop = () => {
                       تحميل مجاني
                     </Button>
                   ) : (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          className="w-full bg-gradient-to-r from-primary to-secondary h-10 md:h-11 text-sm md:text-base"
-                          onClick={() => {
-                            setSelectedFile(file);
-                            setOrderSuccess(false);
-                            setOrderNumber('');
-                          }}
-                        >
-                          <ShoppingCart className="h-4 w-4 ml-2" />
-                          احجز الآن
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>حجز: {file.title}</DialogTitle>
-                        </DialogHeader>
-                        
-                        {orderSuccess ? (
-                          <div className="space-y-4 py-8">
-                            <div className="text-center">
-                              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                              </div>
-                              <h3 className="text-xl font-bold mb-2">تم إرسال طلبك بنجاح!</h3>
-                              <p className="text-lg font-medium text-primary mb-4">
-                                رقم الطلب: {orderNumber}
-                              </p>
-                              <p className="text-muted-foreground mb-6">
-                                الآن أرسل وصل الدفع لتأكيد الطلب
-                              </p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <a
-                                href={`https://wa.me/964775326XXXX?text=رقم الطلب: ${orderNumber}%0Aأرسل وصل الدفع`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 p-4 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
-                              >
-                                <MessageCircle className="h-5 w-5" />
-                                واتساب
-                              </a>
-                              <a
-                                href="https://t.me/Univers_research"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 p-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
-                              >
-                                <MessageCircle className="h-5 w-5" />
-                                تيليجرام
-                              </a>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-                              <Button
-                                onClick={() => {
-                                  navigate('/payment-info');
-                                }}
-                                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-                              >
-                                أكمل عملية الدفع
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  resetForm();
-                                  setSelectedFile(null);
-                                }}
-                              >
-                                عرض طلباتي
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <form onSubmit={handleBooking} className="space-y-4 mt-4">
-                          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                            <p className="text-lg font-bold text-center">
-                              السعر: {formatPrice(file.price)}
-                            </p>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label>الاسم الكامل *</Label>
-                              <Input
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                required
-                              />
-                            </div>
-                            <div>
-                              <Label>رقم الهاتف *</Label>
-                              <Input
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="+964 7XX XXX XXXX"
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label>الجامعة *</Label>
-                            <Input
-                              value={university}
-                              onChange={(e) => setUniversity(e.target.value)}
-                              required
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label>الكلية *</Label>
-                              <Input
-                                value={college}
-                                onChange={(e) => setCollege(e.target.value)}
-                                required
-                              />
-                            </div>
-                            <div>
-                              <Label>القسم *</Label>
-                              <Input
-                                value={department}
-                                onChange={(e) => setDepartment(e.target.value)}
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label>ملاحظات إضافية</Label>
-                            <Textarea
-                              value={notes}
-                              onChange={(e) => setNotes(e.target.value)}
-                              rows={3}
-                            />
-                          </div>
-
-                          <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                              <MessageCircle className="h-4 w-4" />
-                              معلومات الدفع
-                            </p>
-                            <p className="text-sm text-muted-foreground mb-2">
-                              بعد إرسال الطلب، سيظهر رقم الطلب وأزرار لإرسال وصل الدفع
-                            </p>
-                            <p className="text-sm font-medium">
-                              📱 تيليجرام / واتساب: <span dir="ltr">+964 775 326 9645</span>
-                            </p>
-                          </div>
-
-                            <Button
-                              type="submit"
-                              className="w-full bg-gradient-to-r from-primary to-secondary"
-                              disabled={submitting}
-                            >
-                              {submitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
-                            </Button>
-                          </form>
-                        )}
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      className="w-full bg-gradient-to-r from-primary to-secondary h-10 md:h-11 text-sm md:text-base"
+                      onClick={() => navigate('/booking')}
+                    >
+                      <ShoppingCart className="h-4 w-4 ml-2" />
+                      احجز الآن
+                    </Button>
                   )}
                 </div>
               </Card>
