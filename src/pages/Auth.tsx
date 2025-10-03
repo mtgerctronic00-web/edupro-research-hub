@@ -241,7 +241,7 @@ const Auth = () => {
 
                 {/* Telegram Button */}
                 <a
-                  href="https://t.me/+9647753269645"
+                  href="https://t.me/Univers_research"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] overflow-hidden"
