@@ -6,8 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
+import { Sheet, SheetContent } from "./ui/sheet";
 
-const Sidebar = () => {
+interface SidebarProps {
+  mobileMenuOpen?: boolean;
+  setMobileMenuOpen?: (open: boolean) => void;
+}
+
+const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -152,11 +158,17 @@ const Sidebar = () => {
     { icon: Facebook, href: "#", label: "فيسبوك" },
   ];
 
-  return (
-    <aside className="fixed right-0 top-0 h-screen w-72 bg-gradient-to-b from-card to-muted border-l border-border flex flex-col shadow-xl z-40">
+  const handleLinkClick = () => {
+    if (setMobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const SidebarContent = () => (
+    <>
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-3 group" onClick={handleLinkClick}>
           <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-secondary group-hover:scale-110 transition-transform duration-300 shadow-lg">
             <GraduationCap className="h-8 w-8 text-white" />
           </div>
@@ -179,6 +191,7 @@ const Sidebar = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={handleLinkClick}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
                 isActive
@@ -222,7 +235,7 @@ const Sidebar = () => {
             </Button>
           </>
         ) : (
-          <Link to="/auth">
+          <Link to="/auth" onClick={handleLinkClick}>
             <Button className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
               تسجيل الدخول
             </Button>
@@ -250,7 +263,28 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed right-0 top-0 h-screen w-72 bg-gradient-to-b from-card to-muted border-l border-border flex-col shadow-xl z-40">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent 
+          side="right" 
+          className="w-72 p-0 bg-gradient-to-b from-card to-muted"
+        >
+          <div className="h-full flex flex-col">
+            <SidebarContent />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 
