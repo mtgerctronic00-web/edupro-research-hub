@@ -196,13 +196,13 @@ ${formData.details}`;
                 <p className="text-sm font-medium">إرسال نسخة من الطلب:</p>
                 <div className="flex gap-3 justify-center flex-wrap">
                   <Button
-                    onClick={() => window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${generateMessage()}`, '_blank')}
+                    onClick={() => window.open(`https://wa.me/9647753269645?text=${generateMessage()}`, '_blank')}
                     className="gap-2 bg-green-600 hover:bg-green-700"
                   >
                     واتساب
                   </Button>
                   <Button
-                    onClick={() => window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${generateMessage()}`, '_blank')}
+                    onClick={() => window.open(`https://t.me/Univers_research?text=${generateMessage()}`, '_blank')}
                     className="gap-2 bg-blue-600 hover:bg-blue-700"
                   >
                     تليجرام
