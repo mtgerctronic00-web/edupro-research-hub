@@ -17,6 +17,8 @@ import Shop from "./pages/Shop";
 import Notifications from "./pages/Notifications";
 import PaymentInfo from "./pages/PaymentInfo";
 import Support from "./pages/Support";
+import FreeSample from "./pages/FreeSample";
+import Modifications from "./pages/Modifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ const App = () => (
           <Route path="/seminars" element={<Seminars />} />
           <Route path="/free-resources" element={<FreeResources />} />
           <Route path="/my-works" element={<MyWorks />} />
+          <Route path="/free-sample" element={<FreeSample />} />
+          <Route path="/modifications" element={<Modifications />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

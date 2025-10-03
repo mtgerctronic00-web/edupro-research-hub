@@ -65,6 +65,98 @@ export type Database = {
         }
         Relationships: []
       }
+      free_samples: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          details: string | null
+          full_name: string
+          id: string
+          pages_count: number
+          service_type: string
+          status: string
+          topic: string
+          university: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          full_name: string
+          id?: string
+          pages_count: number
+          service_type: string
+          status?: string
+          topic: string
+          university: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          full_name?: string
+          id?: string
+          pages_count?: number
+          service_type?: string
+          status?: string
+          topic?: string
+          university?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      modifications: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          delivery_date: string
+          details: string
+          id: string
+          modification_type: string
+          order_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          delivery_date: string
+          details: string
+          id?: string
+          modification_type: string
+          order_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          delivery_date?: string
+          details?: string
+          id?: string
+          modification_type?: string
+          order_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modifications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
