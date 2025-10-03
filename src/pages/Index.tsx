@@ -125,44 +125,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-
-        {/* Developer Credit Section */}
-        <div className="flex justify-center items-center py-4 md:py-8">
-          <a
-            href="https://t.me/Aoopuy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative inline-flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 hover:border-primary/40 transition-all duration-500 overflow-hidden hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)] hover:scale-105"
-          >
-            {/* Animated background shimmer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            
-            {/* Glowing orbs */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 bg-primary/20 rounded-full blur-xl md:blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            <div className="relative flex items-center gap-2 md:gap-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-lg md:rounded-xl blur-sm md:blur-md opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative p-1.5 md:p-2 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-xl group-hover:rotate-12 group-hover:scale-110 transition-all duration-300">
-                  <Send className="h-4 w-4 md:h-5 md:w-5 text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
-                </div>
-              </div>
-              
-              <div className="flex flex-col">
-                <span className="text-[10px] md:text-xs text-muted-foreground group-hover:text-primary transition-colors duration-300">
-                  Developed by
-                </span>
-                <span className="text-base md:text-lg font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent group-hover:from-secondary group-hover:via-primary group-hover:to-secondary transition-all duration-500">
-                  Aoopuy
-                </span>
-              </div>
-              
-              <div className="opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
-                <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-primary to-secondary animate-pulse" />
-              </div>
-            </div>
-          </a>
-        </div>
         </div>
       </div>
     </AppLayout>
