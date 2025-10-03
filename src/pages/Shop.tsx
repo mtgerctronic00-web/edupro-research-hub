@@ -117,6 +117,7 @@ const Shop = () => {
 
       setOrderNumber(orderResult.order_number || '');
       setOrderSuccess(true);
+      setBookingDialogOpen(true);
       toast.success('تم إرسال طلبك بنجاح!');
 
     } catch (error: any) {
@@ -249,12 +250,21 @@ const Shop = () => {
                       تحميل مجاني
                     </Button>
                   ) : (
-                    <Dialog>
+                    <Dialog 
+                      open={bookingDialogOpen && selectedFile?.id === file.id}
+                      onOpenChange={(open) => {
+                        setBookingDialogOpen(open);
+                        if (!open) {
+                          resetForm();
+                        }
+                      }}
+                    >
                       <DialogTrigger asChild>
                         <Button
-                          className="w-full bg-gradient-to-r from-primary to-secondary"
+                          className="w-full bg-gradient-to-r from-primary to-secondary h-10 md:h-11 text-sm md:text-base"
                           onClick={() => {
                             setSelectedFile(file);
+                            setBookingDialogOpen(true);
                             resetForm();
                           }}
                         >
@@ -305,7 +315,13 @@ const Shop = () => {
                               </a>
                             </div>
 
-                            <div className="text-center pt-4">
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+                              <Button
+                                onClick={() => navigate('/payment-info')}
+                                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                              >
+                                أكمل عملية الدفع
+                              </Button>
                               <Button
                                 variant="outline"
                                 onClick={() => {
