@@ -116,14 +116,6 @@ const Modifications = () => {
       if (error) throw error;
 
       setIsSubmitted(true);
-      
-      // إرسال التفاصيل تلقائياً حسب طريقة التواصل المختارة
-      const message = generateWhatsAppMessage();
-      if (formData.contactMethod === "whatsapp") {
-        window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${message}`, '_blank');
-      } else if (formData.contactMethod === "telegram") {
-        window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${message}`, '_blank');
-      }
 
       toast({
         title: "تم إرسال طلب التعديل بنجاح",
@@ -151,15 +143,16 @@ const Modifications = () => {
     return types[type] || type;
   };
 
-  const generateWhatsAppMessage = () => {
+  const generateMessage = () => {
+    const selectedOrder = orders.find(o => o.id === formData.orderId);
     const message = `✏️ طلب تعديل جديد
 
 👤 الاسم: ${formData.fullName}
-📑 رقم الطلب: ${formData.orderId}
+📑 رقم الطلب: ${selectedOrder?.order_number || formData.orderId}
 📱 رقم الهاتف: ${formData.phoneNumber}
 📝 نوع الخدمة: ${getServiceTypeLabel(formData.serviceType)}
 ✍️ نوع التعديل: ${getModificationTypeLabel(formData.modificationType)}
-📞 التواصل: ${formData.contactMethod}
+📞 التواصل: ${formData.contactMethod === "whatsapp" ? "واتساب" : "تليجرام"}
 🕒 موعد التسليم المطلوب: ${date ? format(date, "PPP", { locale: ar }) : ""}
 
 تفاصيل التعديل:
@@ -194,10 +187,28 @@ ${formData.details}`;
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 space-y-4">
               <p className="text-sm">
                 سيتم إشعارك عند اكتمال التعديلات المطلوبة
               </p>
+              
+              <div className="space-y-3">
+                <p className="text-sm font-medium">إرسال نسخة من الطلب:</p>
+                <div className="flex gap-3 justify-center flex-wrap">
+                  <Button
+                    onClick={() => window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${generateMessage()}`, '_blank')}
+                    className="gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    واتساب
+                  </Button>
+                  <Button
+                    onClick={() => window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${generateMessage()}`, '_blank')}
+                    className="gap-2 bg-blue-600 hover:bg-blue-700"
+                  >
+                    تليجرام
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <Button
