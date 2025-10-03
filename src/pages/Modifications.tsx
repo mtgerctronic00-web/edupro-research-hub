@@ -45,6 +45,16 @@ const Modifications = () => {
     checkAuth();
   }, [navigate]);
 
+  const getServiceTypeLabel = (type: string) => {
+    const types: { [key: string]: string } = {
+      research: "بحث",
+      seminar: "سمنار",
+      report: "تقرير",
+      presentation: "عرض تقديمي",
+    };
+    return types[type] || type;
+  };
+
   const fetchOrders = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -202,7 +212,7 @@ const Modifications = () => {
                   <SelectContent>
                     {orders.map((order) => (
                       <SelectItem key={order.id} value={order.id}>
-                        {order.service_type} - {order.order_number}
+                        {getServiceTypeLabel(order.service_type)} - {order.order_number}
                       </SelectItem>
                     ))}
                   </SelectContent>
