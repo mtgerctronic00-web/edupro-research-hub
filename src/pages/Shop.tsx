@@ -30,7 +30,6 @@ const Shop = () => {
   const [files, setFiles] = useState<ContentFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<ContentFile | null>(null);
-  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
@@ -117,7 +116,6 @@ const Shop = () => {
 
       setOrderNumber(orderResult.order_number || '');
       setOrderSuccess(true);
-      setBookingDialogOpen(true);
       toast.success('تم إرسال طلبك بنجاح!');
 
     } catch (error: any) {
@@ -250,22 +248,14 @@ const Shop = () => {
                       تحميل مجاني
                     </Button>
                   ) : (
-                    <Dialog 
-                      open={bookingDialogOpen && selectedFile?.id === file.id}
-                      onOpenChange={(open) => {
-                        setBookingDialogOpen(open);
-                        if (!open) {
-                          resetForm();
-                        }
-                      }}
-                    >
+                    <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           className="w-full bg-gradient-to-r from-primary to-secondary h-10 md:h-11 text-sm md:text-base"
                           onClick={() => {
                             setSelectedFile(file);
-                            setBookingDialogOpen(true);
-                            resetForm();
+                            setOrderSuccess(false);
+                            setOrderNumber('');
                           }}
                         >
                           <ShoppingCart className="h-4 w-4 ml-2" />
@@ -317,7 +307,9 @@ const Shop = () => {
 
                             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                               <Button
-                                onClick={() => navigate('/payment-info')}
+                                onClick={() => {
+                                  navigate('/payment-info');
+                                }}
                                 className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
                               >
                                 أكمل عملية الدفع
@@ -325,11 +317,11 @@ const Shop = () => {
                               <Button
                                 variant="outline"
                                 onClick={() => {
-                                  setBookingDialogOpen(false);
                                   resetForm();
+                                  setSelectedFile(null);
                                 }}
                               >
-                                إغلاق
+                                عرض طلباتي
                               </Button>
                             </div>
                           </div>
