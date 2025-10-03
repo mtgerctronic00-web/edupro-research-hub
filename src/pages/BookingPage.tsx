@@ -126,7 +126,7 @@ const BookingPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
                 <a
-                  href={`https://wa.me/964775326XXXX?text=رقم الطلب: ${orderNumber}%0Aأرسل وصل الدفع`}
+                  href={`https://wa.me/9647753269645?text=رقم الطلب: ${orderNumber}%0Aأرسل وصل الدفع`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 p-4 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
@@ -149,7 +149,13 @@ const BookingPage = () => {
                 </a>
               </div>
 
-              <div className="text-center pt-6">
+              <div className="text-center pt-6 space-y-4">
+                <Button
+                  onClick={() => navigate('/payment-info')}
+                  className="px-8 h-12 text-lg bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+                >
+                  إكمال عملية الدفع
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => navigate('/my-orders')}
