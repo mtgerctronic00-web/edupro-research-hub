@@ -47,7 +47,8 @@ const Modifications = () => {
 
   const getServiceTypeLabel = (type: string) => {
     const types: { [key: string]: string } = {
-      research: "بحث",
+      research: "بحوث تخرج",
+      graduation_research: "بحوث تخرج",
       seminar: "سمنار",
       report: "تقرير",
       presentation: "عرض تقديمي",
