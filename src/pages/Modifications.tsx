@@ -51,7 +51,6 @@ const Modifications = () => {
       graduation_research: "بحوث تخرج",
       seminar: "سمنار",
       report: "تقرير",
-      presentation: "عرض تقديمي",
     };
     return types[type] || type;
   };
