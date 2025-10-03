@@ -10,19 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Edit3, CheckCircle, Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { Edit3, CheckCircle } from "lucide-react";
 
 const Modifications = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -85,15 +79,6 @@ const Modifications = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!date) {
-      toast({
-        title: "خطأ",
-        description: "الرجاء اختيار تاريخ التسليم",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -108,7 +93,6 @@ const Modifications = () => {
           order_id: formData.orderId,
           modification_type: formData.modificationType,
           details: formData.details,
-          delivery_date: format(date, "yyyy-MM-dd"),
           contact_method: formData.contactMethod,
         },
       ]);
@@ -153,7 +137,6 @@ const Modifications = () => {
 📝 نوع الخدمة: ${getServiceTypeLabel(formData.serviceType)}
 ✍️ نوع التعديل: ${getModificationTypeLabel(formData.modificationType)}
 📞 التواصل: ${formData.contactMethod === "whatsapp" ? "واتساب" : "تليجرام"}
-🕒 موعد التسليم المطلوب: ${date ? format(date, "PPP", { locale: ar }) : ""}
 
 تفاصيل التعديل:
 ${formData.details}`;
@@ -354,33 +337,6 @@ ${formData.details}`;
                   placeholder="اشرح التعديلات المطلوبة بالتفصيل"
                   rows={6}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>موعد التسليم المطلوب *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="ml-2 h-4 w-4" />
-                      {date ? format(date, "PPP", { locale: ar }) : "اختر التاريخ"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                      disabled={(date) => date < new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
 
               <Button
