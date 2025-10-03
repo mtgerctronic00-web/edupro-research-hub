@@ -116,6 +116,15 @@ const Modifications = () => {
       if (error) throw error;
 
       setIsSubmitted(true);
+      
+      // إرسال التفاصيل تلقائياً حسب طريقة التواصل المختارة
+      const message = generateWhatsAppMessage();
+      if (formData.contactMethod === "whatsapp") {
+        window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${message}`, '_blank');
+      } else if (formData.contactMethod === "telegram") {
+        window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${message}`, '_blank');
+      }
+
       toast({
         title: "تم إرسال طلب التعديل بنجاح",
         description: "سيتم مراجعة طلبك والبدء بالعمل عليه قريباً",
@@ -185,28 +194,10 @@ ${formData.details}`;
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 space-y-4">
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6">
               <p className="text-sm">
                 سيتم إشعارك عند اكتمال التعديلات المطلوبة
               </p>
-              
-              <div className="space-y-3">
-                <p className="text-sm font-medium">إرسال نسخة من الطلب:</p>
-                <div className="flex gap-3 justify-center">
-                  <Button
-                    onClick={() => window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${generateWhatsAppMessage()}`, '_blank')}
-                    className="gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    واتساب
-                  </Button>
-                  <Button
-                    onClick={() => window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${generateWhatsAppMessage()}`, '_blank')}
-                    className="gap-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    تليجرام
-                  </Button>
-                </div>
-              </div>
             </div>
 
             <Button
