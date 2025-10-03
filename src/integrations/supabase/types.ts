@@ -110,6 +110,45 @@ export type Database = {
         }
         Relationships: []
       }
+      free_service_requests: {
+        Row: {
+          admin_notes: string | null
+          contact_method: string
+          created_at: string | null
+          details: string
+          full_name: string
+          id: string
+          service_type: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          contact_method: string
+          created_at?: string | null
+          details: string
+          full_name: string
+          id?: string
+          service_type: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          contact_method?: string
+          created_at?: string | null
+          details?: string
+          full_name?: string
+          id?: string
+          service_type?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       modifications: {
         Row: {
           admin_notes: string | null
