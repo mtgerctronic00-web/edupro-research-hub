@@ -19,7 +19,6 @@ const Modifications = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    phoneNumber: "",
     orderId: "",
     serviceType: "",
     modificationType: "",
@@ -89,7 +88,6 @@ const Modifications = () => {
         {
           user_id: user.id,
           full_name: formData.fullName,
-          phone_number: formData.phoneNumber,
           order_id: formData.orderId,
           modification_type: formData.modificationType,
           details: formData.details,
@@ -101,6 +99,14 @@ const Modifications = () => {
       if (error) throw error;
 
       setIsSubmitted(true);
+      
+      // إرسال التفاصيل تلقائياً حسب طريقة التواصل المختارة
+      const message = generateMessage();
+      if (formData.contactMethod === "whatsapp") {
+        window.open(`https://wa.me/9647753269645?text=${message}`, '_blank');
+      } else if (formData.contactMethod === "telegram") {
+        window.open(`https://t.me/Univers_research?text=${message}`, '_blank');
+      }
 
       toast({
         title: "تم إرسال طلب التعديل بنجاح",
@@ -134,7 +140,6 @@ const Modifications = () => {
 
 👤 الاسم: ${formData.fullName}
 📑 رقم الطلب: ${selectedOrder?.order_number || formData.orderId}
-📱 رقم الهاتف: ${formData.phoneNumber}
 📝 نوع الخدمة: ${getServiceTypeLabel(formData.serviceType)}
 ✍️ نوع التعديل: ${getModificationTypeLabel(formData.modificationType)}
 📞 التواصل: ${formData.contactMethod === "whatsapp" ? "واتساب" : "تليجرام"}
@@ -171,28 +176,10 @@ ${formData.details}`;
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 space-y-4">
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6">
               <p className="text-sm">
-                سيتم إشعارك عند اكتمال التعديلات المطلوبة
+                تم إرسال طلب التعديل تلقائياً. سيتم إشعارك عند اكتمال التعديلات المطلوبة
               </p>
-              
-              <div className="space-y-3">
-                <p className="text-sm font-medium">إرسال نسخة من الطلب:</p>
-                <div className="flex gap-3 justify-center flex-wrap">
-                  <Button
-                    onClick={() => window.open(`https://wa.me/9647753269645?text=${generateMessage()}`, '_blank')}
-                    className="gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    واتساب
-                  </Button>
-                  <Button
-                    onClick={() => window.open(`https://t.me/Univers_research?text=${generateMessage()}`, '_blank')}
-                    className="gap-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    تليجرام
-                  </Button>
-                </div>
-              </div>
             </div>
 
             <Button
@@ -238,18 +225,6 @@ ${formData.details}`;
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   placeholder="أدخل الاسم الثلاثي"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">رقم الهاتف / تلي *</Label>
-                <Input
-                  type="tel"
-                  id="phoneNumber"
-                  required
-                  value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                  placeholder="أدخل رقم الهاتف"
                 />
               </div>
 
