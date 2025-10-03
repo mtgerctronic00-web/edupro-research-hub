@@ -16,17 +16,17 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <Button
         variant="outline"
         size="icon"
-        className="fixed top-4 right-4 z-50 lg:hidden"
+        className="fixed top-3 right-3 md:top-4 md:right-4 z-50 lg:hidden w-10 h-10"
         onClick={() => setMobileMenuOpen(true)}
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-4 w-4 md:h-5 md:w-5" />
       </Button>
 
       <Sidebar 
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen} 
       />
-      <main className="lg:mr-72 min-h-screen p-4 lg:p-0">
+      <main className="lg:mr-72 min-h-screen p-0 lg:p-0">
         {children}
       </main>
     </div>
