@@ -43,7 +43,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-3xl shadow-2xl">
+    <div className="relative h-[350px] md:h-[500px] overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl">
       {slides.map((slide, index) => {
         const Icon = slide.icon;
         return (
@@ -59,22 +59,22 @@ const HeroSlider = () => {
           >
             <div className={`h-full bg-gradient-to-br ${slide.gradient} flex items-center justify-center relative overflow-hidden`}>
               {/* Decorative circles */}
-              <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-float" />
-              <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+              <div className="absolute top-10 right-10 md:top-20 md:right-20 w-40 h-40 md:w-72 md:h-72 bg-white/10 rounded-full blur-2xl md:blur-3xl animate-float" />
+              <div className="absolute bottom-10 left-10 md:bottom-20 md:left-20 w-52 h-52 md:w-96 md:h-96 bg-white/10 rounded-full blur-2xl md:blur-3xl animate-float" style={{ animationDelay: "1s" }} />
               
-              <div className="container mx-auto px-4 text-center relative z-10">
-                <div className="mb-8 inline-block p-6 bg-white/20 backdrop-blur-sm rounded-3xl animate-bounce-in">
-                  <Icon className="h-20 w-20 text-white" />
+              <div className="container mx-auto px-4 md:px-6 text-center relative z-10">
+                <div className="mb-4 md:mb-8 inline-block p-4 md:p-6 bg-white/20 backdrop-blur-sm rounded-2xl md:rounded-3xl animate-bounce-in">
+                  <Icon className="h-12 w-12 md:h-20 md:w-20 text-white" />
                 </div>
-                <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">
+                <h2 className="text-2xl md:text-4xl lg:text-6xl font-bold text-white mb-3 md:mb-4 animate-fade-in-up px-2">
                   {slide.title}
                 </h2>
-                <p className="text-xl text-white/90 mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+                <p className="text-sm md:text-lg lg:text-xl text-white/90 mb-5 md:mb-8 animate-fade-in-up px-4 leading-relaxed" style={{ animationDelay: "0.2s" }}>
                   {slide.description}
                 </p>
                 <Button
-                  size="lg"
-                  className="bg-white text-primary hover:bg-white/90 animate-fade-in-up shadow-lg"
+                  size="default"
+                  className="bg-white text-primary hover:bg-white/90 animate-fade-in-up shadow-lg h-10 md:h-11 text-sm md:text-base px-6 md:px-8"
                   style={{ animationDelay: "0.4s" }}
                 >
                   اكتشف المزيد
@@ -88,25 +88,25 @@ const HeroSlider = () => {
       {/* Navigation Buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-4 w-4 md:h-6 md:w-6" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-4 w-4 md:h-6 md:w-6" />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
-              index === currentSlide ? "bg-white w-8" : "bg-white/50"
+            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${
+              index === currentSlide ? "bg-white w-6 md:w-8" : "bg-white/50"
             }`}
           />
         ))}
