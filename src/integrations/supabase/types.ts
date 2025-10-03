@@ -113,36 +113,45 @@ export type Database = {
       modifications: {
         Row: {
           admin_notes: string | null
+          contact_method: string | null
           created_at: string
           delivery_date: string
           details: string
+          full_name: string | null
           id: string
           modification_type: string
           order_id: string
+          phone_number: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           admin_notes?: string | null
+          contact_method?: string | null
           created_at?: string
           delivery_date: string
           details: string
+          full_name?: string | null
           id?: string
           modification_type: string
           order_id: string
+          phone_number?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           admin_notes?: string | null
+          contact_method?: string | null
           created_at?: string
           delivery_date?: string
           details?: string
+          full_name?: string | null
           id?: string
           modification_type?: string
           order_id?: string
+          phone_number?: string | null
           status?: string
           updated_at?: string
           user_id?: string

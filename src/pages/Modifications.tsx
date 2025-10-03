@@ -6,6 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
@@ -23,10 +24,13 @@ const Modifications = () => {
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
+    fullName: "",
+    phoneNumber: "",
     orderId: "",
     serviceType: "",
     modificationType: "",
     details: "",
+    contactMethod: "",
   });
 
   useEffect(() => {
@@ -99,10 +103,13 @@ const Modifications = () => {
       const { error } = await supabase.from("modifications").insert([
         {
           user_id: user.id,
+          full_name: formData.fullName,
+          phone_number: formData.phoneNumber,
           order_id: formData.orderId,
           modification_type: formData.modificationType,
           details: formData.details,
           delivery_date: format(date, "yyyy-MM-dd"),
+          contact_method: formData.contactMethod,
         },
       ]);
 
@@ -129,9 +136,27 @@ const Modifications = () => {
       addition: "إضافة",
       deletion: "حذف",
       rephrasing: "إعادة صياغة",
+      correction: "تصحيح",
       formatting: "تنسيق",
     };
     return types[type] || type;
+  };
+
+  const generateWhatsAppMessage = () => {
+    const message = `✏️ طلب تعديل جديد
+
+👤 الاسم: ${formData.fullName}
+📑 رقم الطلب: ${formData.orderId}
+📱 رقم الهاتف: ${formData.phoneNumber}
+📝 نوع الخدمة: ${getServiceTypeLabel(formData.serviceType)}
+✍️ نوع التعديل: ${getModificationTypeLabel(formData.modificationType)}
+📞 التواصل: ${formData.contactMethod}
+🕒 موعد التسليم المطلوب: ${date ? format(date, "PPP", { locale: ar }) : ""}
+
+تفاصيل التعديل:
+${formData.details}`;
+    
+    return encodeURIComponent(message);
   };
 
   if (isSubmitted) {
@@ -160,10 +185,28 @@ const Modifications = () => {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-6 space-y-4">
               <p className="text-sm">
                 سيتم إشعارك عند اكتمال التعديلات المطلوبة
               </p>
+              
+              <div className="space-y-3">
+                <p className="text-sm font-medium">إرسال نسخة من الطلب:</p>
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    onClick={() => window.open(`https://wa.me/YOUR_PHONE_NUMBER?text=${generateWhatsAppMessage()}`, '_blank')}
+                    className="gap-2 bg-green-600 hover:bg-green-700"
+                  >
+                    واتساب
+                  </Button>
+                  <Button
+                    onClick={() => window.open(`https://t.me/YOUR_TELEGRAM_USERNAME?text=${generateWhatsAppMessage()}`, '_blank')}
+                    className="gap-2 bg-blue-600 hover:bg-blue-700"
+                  >
+                    تليجرام
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <Button
@@ -201,7 +244,31 @@ const Modifications = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="orderId">الخدمة المراد تعديلها *</Label>
+                <Label htmlFor="fullName">الاسم الثلاثي *</Label>
+                <Input
+                  type="text"
+                  id="fullName"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  placeholder="أدخل الاسم الثلاثي"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">رقم الهاتف / تلي *</Label>
+                <Input
+                  type="tel"
+                  id="phoneNumber"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  placeholder="أدخل رقم الهاتف"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="orderId">رقم الطلب / الخدمة *</Label>
                 <Select
                   value={formData.orderId}
                   onValueChange={(value) => setFormData({ ...formData, orderId: value })}
@@ -252,7 +319,25 @@ const Modifications = () => {
                     <SelectItem value="addition">إضافة</SelectItem>
                     <SelectItem value="deletion">حذف</SelectItem>
                     <SelectItem value="rephrasing">إعادة صياغة</SelectItem>
+                    <SelectItem value="correction">تصحيح</SelectItem>
                     <SelectItem value="formatting">تنسيق</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contactMethod">طريقة التواصل *</Label>
+                <Select
+                  value={formData.contactMethod}
+                  onValueChange={(value) => setFormData({ ...formData, contactMethod: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر طريقة التواصل" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="whatsapp">واتساب</SelectItem>
+                    <SelectItem value="telegram">تليجرام</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
