@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { ClipboardList, Calendar } from "lucide-react";
+import { ClipboardList, Calendar, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 const BookingPage = () => {
   const [user, setUser] = useState<any>(null);
@@ -118,14 +118,15 @@ const BookingPage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
                 <Button 
                   onClick={() => navigate('/payment-info')} 
-                  className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-8"
+                  className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 px-8 h-12"
                 >
+                  <CreditCard className="h-5 w-5 ml-2" />
                   أكمل عملية الدفع
                 </Button>
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/my-orders')} 
-                  className="px-8"
+                  className="px-8 h-12"
                 >
                   عرض طلباتي
                 </Button>
