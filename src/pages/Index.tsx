@@ -120,16 +120,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-
-        {/* Admin Setup Link (Hidden after first admin) */}
-        <div className="text-center">
-          <Link
-            to="/setup-admin"
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            إعداد صلاحيات الأدمن
-          </Link>
-        </div>
       </div>
     </AppLayout>
   );
