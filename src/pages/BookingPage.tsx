@@ -82,8 +82,10 @@ const BookingPage = () => {
       }).select('order_number').single();
       if (insertError) throw insertError;
       setOrderNumber(orderResult.order_number || '');
-      setOrderSuccess(true);
-      toast.success("تم إرسال طلبك بنجاح!");
+      toast.success("تم إرسال طلبك بنجاح! جاري التحويل إلى صفحة الدفع...");
+      setTimeout(() => {
+        navigate('/payment-info');
+      }, 1500);
     } catch (error: any) {
       console.error("Error submitting order:", error);
       toast.error(error.message || "حدث خطأ، يرجى المحاولة مرة أخرى");
