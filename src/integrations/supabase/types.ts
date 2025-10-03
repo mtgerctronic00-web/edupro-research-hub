@@ -115,7 +115,7 @@ export type Database = {
           admin_notes: string | null
           contact_method: string | null
           created_at: string
-          delivery_date: string
+          delivery_date: string | null
           details: string
           full_name: string | null
           id: string
@@ -130,7 +130,7 @@ export type Database = {
           admin_notes?: string | null
           contact_method?: string | null
           created_at?: string
-          delivery_date: string
+          delivery_date?: string | null
           details: string
           full_name?: string | null
           id?: string
@@ -145,7 +145,7 @@ export type Database = {
           admin_notes?: string | null
           contact_method?: string | null
           created_at?: string
-          delivery_date?: string
+          delivery_date?: string | null
           details?: string
           full_name?: string | null
           id?: string

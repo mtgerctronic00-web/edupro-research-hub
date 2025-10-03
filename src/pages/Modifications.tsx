@@ -94,6 +94,7 @@ const Modifications = () => {
           modification_type: formData.modificationType,
           details: formData.details,
           contact_method: formData.contactMethod,
+          delivery_date: null,
         },
       ]);
 
