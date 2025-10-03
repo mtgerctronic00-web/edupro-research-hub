@@ -1,5 +1,6 @@
 import AppLayout from "@/components/AppLayout";
 import HeroSlider from "@/components/HeroSlider";
+import UsageInstructions from "@/components/UsageInstructions";
 import ServiceCard from "@/components/ServiceCard";
 import { FileText, Presentation, BookOpen, Briefcase, Star, Users, TrendingUp, Send } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -44,12 +45,16 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
+      <div className="space-y-0">
         {/* Hero Section */}
         <HeroSlider />
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {/* Usage Instructions Section */}
+        <UsageInstructions />
+
+        <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               return (
@@ -157,6 +162,7 @@ const Index = () => {
               </div>
             </div>
           </a>
+        </div>
         </div>
       </div>
     </AppLayout>
