@@ -132,7 +132,7 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
     ? [
         { name: "الرئيسية", path: "/", icon: Home },
         { name: "المتجر", path: "/shop", icon: ClipboardList },
-        { name: "عينة مجانية", path: "/free-sample", icon: Gift },
+        { name: "اطلب مقدمة مجانية", path: "/free-sample", icon: Gift },
         { name: "حجز خدمة", path: "/booking", icon: ClipboardList },
         { name: "طلب تعديل", path: "/modifications", icon: Edit3 },
         { name: "طلباتي", path: "/my-orders", icon: User },
