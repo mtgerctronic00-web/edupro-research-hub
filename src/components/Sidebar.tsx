@@ -193,22 +193,42 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
               to={item.path}
               onClick={handleLinkClick}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
+                "flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-500 group relative overflow-hidden",
                 isActive
-                  ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg scale-105"
-                  : "text-foreground/70 hover:bg-muted hover:text-foreground hover:scale-102"
+                  ? "bg-gradient-to-r from-primary via-primary-glow to-secondary text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105"
+                  : "text-foreground/70 hover:text-foreground hover:bg-gradient-to-r hover:from-primary/5 hover:via-secondary/5 hover:to-accent/5 hover:shadow-md hover:scale-102 hover:translate-x-1"
               )}
             >
+              {/* Animated Background Overlay */}
               {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-xl animate-glow" />
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-xl animate-glow opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                </>
               )}
+              
+              {/* Hover Effect */}
+              {!isActive && (
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-secondary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              )}
+
+              {/* Active Border Indicator */}
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full animate-pulse" />
+              )}
+
               <Icon className={cn(
-                "h-5 w-5 relative z-10 transition-transform",
-                isActive && "animate-bounce-in"
+                "h-5 w-5 relative z-10 transition-all duration-300",
+                isActive && "animate-bounce-in drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]",
+                !isActive && "group-hover:scale-110 group-hover:rotate-12 group-hover:text-primary"
               )} />
-              <span className="font-medium relative z-10 flex-1">{item.name}</span>
+              <span className={cn(
+                "font-medium relative z-10 flex-1 transition-all duration-300",
+                isActive && "font-bold tracking-wide",
+                !isActive && "group-hover:translate-x-1"
+              )}>{item.name}</span>
               {item.badge && (
-                <Badge className="relative z-10 bg-red-500 hover:bg-red-600 text-white">
+                <Badge className="relative z-10 bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg shadow-red-500/50">
                   {item.badge}
                 </Badge>
               )}
@@ -228,16 +248,18 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
             <Button
               onClick={handleLogout}
               variant="destructive"
-              className="w-full justify-start gap-2 bg-red-500 hover:bg-red-600"
+              className="w-full justify-start gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 hover:scale-105 group relative overflow-hidden"
             >
-              <LogOut className="h-4 w-4" />
-              تسجيل الخروج
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <LogOut className="h-4 w-4 relative z-10 group-hover:rotate-180 transition-transform duration-500" />
+              <span className="relative z-10">تسجيل الخروج</span>
             </Button>
           </>
         ) : (
           <Link to="/auth" onClick={handleLinkClick}>
-            <Button className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-              تسجيل الدخول
+            <Button className="w-full bg-gradient-to-r from-primary via-primary-glow to-secondary hover:from-primary-glow hover:to-accent shadow-lg hover:shadow-xl hover:shadow-primary/40 transition-all duration-500 hover:scale-105 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <span className="relative z-10 font-bold">تسجيل الدخول</span>
             </Button>
           </Link>
         )}
@@ -253,10 +275,13 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 p-3 rounded-lg bg-primary/10 hover:bg-primary hover:text-white text-primary transition-all duration-300 flex items-center justify-center group"
+                className="relative flex-1 p-3 rounded-lg bg-gradient-to-br from-primary/10 to-secondary/10 hover:from-primary hover:to-secondary hover:text-white text-primary transition-all duration-500 flex items-center justify-center group overflow-hidden shadow-sm hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1"
                 aria-label={social.label}
               >
-                <Icon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                {/* Animated Background */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                
+                <Icon className="h-5 w-5 relative z-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300 drop-shadow-sm" />
               </a>
             );
           })}
