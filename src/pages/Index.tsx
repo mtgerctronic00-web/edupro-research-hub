@@ -1,9 +1,9 @@
 import AppLayout from "@/components/AppLayout";
 import HeroSlider from "@/components/HeroSlider";
 import UsageInstructions from "@/components/UsageInstructions";
+import StudentStats from "@/components/StudentStats";
 import ServiceCard from "@/components/ServiceCard";
-import { FileText, Presentation, BookOpen, Briefcase, Star, Users, TrendingUp, Send } from "lucide-react";
-import { Link } from "react-router-dom";
+import { FileText, Presentation, BookOpen, Briefcase, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const services = [
@@ -37,12 +37,6 @@ const Index = () => {
     },
   ];
 
-  const stats = [
-    { icon: Star, value: "500+", label: "بحث مكتمل" },
-    { icon: Users, value: "1000+", label: "طالب راضٍ" },
-    { icon: FileText, value: "200+", label: "ملف مجاني" },
-  ];
-
   return (
     <AppLayout>
       <div className="space-y-0">
@@ -52,28 +46,10 @@ const Index = () => {
         {/* Usage Instructions Section */}
         <UsageInstructions />
 
+        {/* Student Statistics Section */}
+        <StudentStats />
+
         <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={index}
-                  className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border text-center animate-fade-in hover:shadow-lg transition-shadow"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="inline-block p-2 md:p-3 rounded-full bg-gradient-to-br from-primary to-secondary mb-3 md:mb-4">
-                    <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 md:mb-2">
-                    {stat.value}
-                  </h3>
-                  <p className="text-sm md:text-base text-muted-foreground">{stat.label}</p>
-                </div>
-              );
-            })}
-        </div>
 
         {/* Services Section */}
         <div className="space-y-4 md:space-y-6">
