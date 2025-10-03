@@ -82,10 +82,8 @@ const BookingPage = () => {
       }).select('order_number').single();
       if (insertError) throw insertError;
       setOrderNumber(orderResult.order_number || '');
-      toast.success("تم إرسال طلبك بنجاح! جاري التحويل إلى صفحة الدفع...");
-      setTimeout(() => {
-        navigate('/payment-info');
-      }, 1500);
+      setOrderSuccess(true);
+      toast.success("تم إرسال طلبك بنجاح!");
     } catch (error: any) {
       console.error("Error submitting order:", error);
       toast.error(error.message || "حدث خطأ، يرجى المحاولة مرة أخرى");
@@ -112,18 +110,20 @@ const BookingPage = () => {
                 <p className="text-xl font-medium text-primary mb-4">
                   رقم الطلب: {orderNumber}
                 </p>
-                <p className="text-lg text-muted-foreground mb-8">
-                  الآن أرسل وصل الدفع لتأكيد الطلب
-                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-                
-                
-              </div>
-
-              <div className="text-center pt-6">
-                <Button variant="outline" onClick={() => navigate('/my-orders')} className="px-8">
+              <div className="text-center pt-6 space-y-4">
+                <Button 
+                  onClick={() => navigate('/payment-info')} 
+                  className="w-full max-w-md bg-gradient-to-r from-primary to-secondary hover:opacity-90 h-12 text-lg"
+                >
+                  أكمل عملية الدفع
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/my-orders')} 
+                  className="w-full max-w-md"
+                >
                   عرض طلباتي
                 </Button>
               </div>
