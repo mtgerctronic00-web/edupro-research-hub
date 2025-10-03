@@ -24,6 +24,7 @@ const Modifications = () => {
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     orderId: "",
+    serviceType: "",
     modificationType: "",
     details: "",
   });
@@ -215,6 +216,24 @@ const Modifications = () => {
                         {getServiceTypeLabel(order.service_type)} - {order.order_number}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="serviceType">نوع الخدمة *</Label>
+                <Select
+                  value={formData.serviceType}
+                  onValueChange={(value) => setFormData({ ...formData, serviceType: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر نوع الخدمة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="research">بحوث تخرج</SelectItem>
+                    <SelectItem value="seminar">سمنار</SelectItem>
+                    <SelectItem value="report">تقرير</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
