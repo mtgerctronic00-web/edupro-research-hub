@@ -150,7 +150,6 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
     : [
         { name: "الرئيسية", path: "/", icon: Home },
         { name: "المتجر", path: "/shop", icon: ClipboardList },
-        { name: "ترجمة PDF مجانية", path: "/pdf-translation", icon: Languages },
         { name: "البحوث", path: "/research", icon: FileText },
         { name: "السمنارات", path: "/seminars", icon: Presentation },
         { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },
