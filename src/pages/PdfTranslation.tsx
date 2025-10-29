@@ -102,6 +102,8 @@ const PdfTranslation = () => {
         <PageHeader
           title="ترجمة PDF مجانية"
           description="ترجمة ملفات PDF من الإنجليزية إلى العربية مع الحفاظ على التنسيق"
+          icon={FileText}
+          gradient="from-blue-500 to-purple-500"
         />
 
         <div className="container mx-auto px-4 py-8 max-w-4xl">
