@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield, Bell, CreditCard, HeadphonesIcon, Gift, Edit3, Download } from "lucide-react";
+import { GraduationCap, Home, FileText, Presentation, BookOpen, Briefcase, Send, MessageCircle, Facebook, ClipboardList, User, LogOut, Shield, Bell, CreditCard, HeadphonesIcon, Gift, Edit3, Download, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -133,6 +133,7 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
         { name: "الرئيسية", path: "/", icon: Home },
         { name: "المتجر", path: "/shop", icon: ClipboardList },
         { name: "اطلب مقدمة مجانية", path: "/free-sample", icon: Gift },
+        { name: "ترجمة PDF مجانية", path: "/pdf-translation", icon: Languages },
         { name: "حجز خدمة", path: "/booking", icon: ClipboardList },
         { name: "طلب تعديل", path: "/modifications", icon: Edit3 },
         { name: "طلباتي", path: "/my-orders", icon: User },
@@ -149,6 +150,7 @@ const Sidebar = ({ mobileMenuOpen = false, setMobileMenuOpen }: SidebarProps) =>
     : [
         { name: "الرئيسية", path: "/", icon: Home },
         { name: "المتجر", path: "/shop", icon: ClipboardList },
+        { name: "ترجمة PDF مجانية", path: "/pdf-translation", icon: Languages },
         { name: "البحوث", path: "/research", icon: FileText },
         { name: "السمنارات", path: "/seminars", icon: Presentation },
         { name: "ملفات مجانية", path: "/free-resources", icon: BookOpen },

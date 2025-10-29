@@ -20,6 +20,7 @@ import Support from "./pages/Support";
 import FreeSample from "./pages/FreeSample";
 import Modifications from "./pages/Modifications";
 import FileDelivery from "./pages/FileDelivery";
+import PdfTranslation from "./pages/PdfTranslation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/free-sample" element={<FreeSample />} />
           <Route path="/modifications" element={<Modifications />} />
           <Route path="/file-delivery" element={<FileDelivery />} />
+          <Route path="/pdf-translation" element={<PdfTranslation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
