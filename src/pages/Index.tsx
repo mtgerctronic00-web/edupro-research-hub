@@ -3,7 +3,8 @@ import HeroSlider from "@/components/HeroSlider";
 import UsageInstructions from "@/components/UsageInstructions";
 import StudentStats from "@/components/StudentStats";
 import ServiceCard from "@/components/ServiceCard";
-import { FileText, Presentation, BookOpen, Briefcase, TrendingUp } from "lucide-react";
+import { FileText, Presentation, BookOpen, Briefcase, TrendingUp, Languages, Sparkles, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const services = [
@@ -42,6 +43,58 @@ const Index = () => {
       <div className="space-y-0">
         {/* Hero Section */}
         <HeroSlider />
+
+        {/* PDF Translation Banner - NEW */}
+        <div className="p-4 md:p-6 lg:p-8">
+          <Link to="/pdf-translation" className="block group">
+            <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-6 md:p-8 lg:p-10 shadow-2xl hover:shadow-[0_20px_60px_rgba(147,51,234,0.4)] transition-all duration-500 hover:scale-[1.02] animate-fade-in">
+              {/* Animated Background Blobs */}
+              <div className="absolute top-0 right-0 w-48 h-48 md:w-96 md:h-96 bg-white/10 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 md:w-80 md:h-80 bg-white/10 rounded-full blur-3xl animate-pulse delay-75" />
+              
+              {/* Floating Icons Animation */}
+              <div className="absolute top-4 left-4 md:top-8 md:left-8 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
+                <Sparkles className="w-8 h-8 md:w-12 md:h-12 text-white animate-pulse" />
+              </div>
+              <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
+                <Sparkles className="w-6 h-6 md:w-10 md:h-10 text-white animate-pulse delay-100" />
+              </div>
+
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                {/* Icon & Text */}
+                <div className="flex items-center gap-4 md:gap-6 text-center md:text-right">
+                  <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
+                    <Languages className="w-8 h-8 md:w-12 md:h-12 text-white drop-shadow-lg" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
+                      <span className="px-3 py-1 rounded-full bg-yellow-400 text-yellow-900 text-xs md:text-sm font-bold animate-pulse shadow-lg">
+                        🎁 مجاناً
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs md:text-sm font-bold border border-white/30">
+                        ✨ جديد
+                      </span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">
+                      ترجمة PDF احترافية 🌐
+                    </h3>
+                    <p className="text-base md:text-lg lg:text-xl text-white/90 font-medium max-w-xl">
+                      ترجم ملفاتك من الإنجليزية للعربية بضغطة واحدة - سريع، دقيق، ومجاني تماماً!
+                    </p>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <div className="flex-shrink-0">
+                  <div className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-white text-purple-600 font-bold text-base md:text-lg shadow-2xl group-hover:shadow-white/50 group-hover:bg-yellow-300 group-hover:text-purple-700 transition-all duration-300 flex items-center gap-2 group-hover:gap-4">
+                    <span>جرب الآن</span>
+                    <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform duration-300" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
 
         {/* Usage Instructions Section */}
         <UsageInstructions />
