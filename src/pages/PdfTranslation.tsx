@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Upload, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,25 +15,6 @@ const PdfTranslation = () => {
   const [translatedPdfUrl, setTranslatedPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // إنشاء bucket عند تحميل الصفحة
-  useEffect(() => {
-    const initBucket = async () => {
-      try {
-        // محاولة إنشاء bucket بالإعدادات الصحيحة
-        await supabase.storage.createBucket("pdf-translations", {
-          public: true,
-          fileSizeLimit: 52428800, // 50MB
-          allowedMimeTypes: ["application/pdf"],
-        });
-      } catch (error: any) {
-        // إذا كان البucket موجود، هذا طبيعي
-        if (!error.message?.includes("already exists")) {
-          console.error("Bucket initialization error:", error);
-        }
-      }
-    };
-    initBucket();
-  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -67,35 +48,37 @@ const PdfTranslation = () => {
     setProgress(10);
 
     try {
-      // Upload file to storage
+      // قراءة الملف كـ Base64 وإرساله للدالة بدون تخزين
       const fileName = `${Date.now()}_${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("pdf-translations")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-      setProgress(30);
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from("pdf-translations")
-        .getPublicUrl(fileName);
+      const fileBase64: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1] || "");
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
       setProgress(50);
 
-      // Call translation edge function
+      // استدعاء دالة الترجمة وتمرير الملف مباشرة
       const { data, error } = await supabase.functions.invoke("translate-pdf", {
-        body: { fileUrl: publicUrl, fileName },
+        body: { fileBase64, fileName },
       });
 
       if (error) throw error;
+      if (!data?.translatedBase64) throw new Error("لم يتم استلام الملف المترجم");
+
       setProgress(90);
 
-      setTranslatedPdfUrl(data.translatedUrl);
+      const dataUrl = `data:application/pdf;base64,${data.translatedBase64}`;
+      setTranslatedPdfUrl(dataUrl);
       setProgress(100);
 
+      // تمت المعالجة بنجاح
       toast({
-        title: "نجحت الترجمة! 🎉",
+        title: "نجحت الترجمة!",
         description: "يمكنك الآن تحميل الملف المترجم",
       });
     } catch (error: any) {

@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+// import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,23 +12,26 @@ serve(async (req) => {
   }
 
   try {
-    const { fileUrl, fileName } = await req.json();
-
-    if (!fileUrl) {
-      throw new Error("File URL is required");
-    }
+    const { fileUrl, fileName, fileBase64 } = await req.json();
 
     console.log("Processing PDF:", fileName);
 
-    // Download the PDF file
-    const pdfResponse = await fetch(fileUrl);
-    if (!pdfResponse.ok) {
-      throw new Error("Failed to download PDF");
+    let pdfUint8: Uint8Array;
+    if (fileBase64) {
+      pdfUint8 = decodeBase64(fileBase64);
+    } else if (fileUrl) {
+      const pdfResponse = await fetch(fileUrl);
+      if (!pdfResponse.ok) {
+        throw new Error("Failed to download PDF");
+      }
+      const pdfBuffer = await pdfResponse.arrayBuffer();
+      pdfUint8 = new Uint8Array(pdfBuffer);
+    } else {
+      throw new Error("Either fileBase64 or fileUrl is required");
     }
-    const pdfBuffer = await pdfResponse.arrayBuffer();
 
-    // Extract text from PDF using pdf-parse
-    const pdfData = await extractTextFromPDF(new Uint8Array(pdfBuffer));
+    // Extract text from PDF
+    const pdfData = await extractTextFromPDF(pdfUint8);
     console.log("Extracted text length:", pdfData.text.length);
 
     if (!pdfData.text || pdfData.text.trim().length === 0) {
@@ -41,34 +44,10 @@ serve(async (req) => {
 
     // Create new PDF with translated text
     const translatedPdfBuffer = await createPDFWithText(translatedText, pdfData.metadata);
-
-    // Upload translated PDF to storage
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const translatedFileName = `translated_${fileName}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("pdf-translations")
-      .upload(translatedFileName, translatedPdfBuffer, {
-        contentType: "application/pdf",
-        upsert: true,
-      });
-
-    if (uploadError) {
-      throw uploadError;
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from("pdf-translations")
-      .getPublicUrl(translatedFileName);
-
-    // Clean up original file
-    await supabase.storage.from("pdf-translations").remove([fileName]);
+    const translatedBase64 = encodeBase64(translatedPdfBuffer);
 
     return new Response(
-      JSON.stringify({ translatedUrl: publicUrl }),
+      JSON.stringify({ translatedBase64, fileName: `translated_${fileName || 'document.pdf'}` }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
@@ -241,4 +220,21 @@ ${450 + text.length}
 %%EOF`;
 
   return new TextEncoder().encode(pdfContent);
+}
+
+function encodeBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function decodeBase64(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
