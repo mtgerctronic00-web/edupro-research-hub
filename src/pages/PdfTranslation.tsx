@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,26 @@ const PdfTranslation = () => {
   const [progress, setProgress] = useState(0);
   const [translatedPdfUrl, setTranslatedPdfUrl] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // إنشاء bucket عند تحميل الصفحة
+  useEffect(() => {
+    const initBucket = async () => {
+      try {
+        // محاولة إنشاء bucket بالإعدادات الصحيحة
+        await supabase.storage.createBucket("pdf-translations", {
+          public: true,
+          fileSizeLimit: 52428800, // 50MB
+          allowedMimeTypes: ["application/pdf"],
+        });
+      } catch (error: any) {
+        // إذا كان البucket موجود، هذا طبيعي
+        if (!error.message?.includes("already exists")) {
+          console.error("Bucket initialization error:", error);
+        }
+      }
+    };
+    initBucket();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
