@@ -154,72 +154,56 @@ async function translateSentences(sentences: string[]): Promise<string[]> {
 }
 
 async function createSimpleBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
-  // Very simple PDF builder using Type1 Helvetica (Arabic shaping not supported)
-  // We still generate bilingual lines; we'll improve font/RTL later
+  // يبني PDF صحيح مع حساب إزاحات xref بدقة
   const escape = (s: string) => s.replace(/[()\\]/g, "\\$&");
+  const encoder = new TextEncoder();
+
+  // نبني سطور: سطر إنكليزي، تحته سطر عربي، ثم سطر فارغ
   const lines: string[] = [];
   for (let i = 0; i < englishSentences.length; i++) {
     const en = englishSentences[i]?.trim() || "";
     const ar = arabicTranslations[i]?.trim() || "";
-    if (en) lines.push(`(${escape(en)}) Tj 0 -15 Td`);
-    if (ar) lines.push(`(${escape(ar)}) Tj 0 -20 Td`);
-    lines.push(`( ) Tj 0 -10 Td`); // extra spacing between pairs
+    if (en) lines.push(`(${escape(en)}) Tj`);
+    if (ar) lines.push(`T*\n(${escape(ar)}) Tj`);
+    lines.push(`T*`); // مسافة إضافية بين الأزواج
   }
 
-  const contentStream = `BT\n/F1 12 Tf\n50 750 Td\n${lines.join("\n")}\nET`;
-  const textLength = contentStream.length;
+  // نستخدم T* مع TL كنقل سطر موثوق
+  const contentStream = `BT\n/F1 12 Tf\n14 TL\n50 780 Td\n${lines.join("\n")}\nET`;
+  const contentBytes = encoder.encode(contentStream);
 
-  const pdfContent = `%PDF-1.4
-1 0 obj
-<<
-/Type /Catalog
-/Pages 2 0 R
->>
-endobj
-2 0 obj
-<<
-/Type /Pages
-/Kids [3 0 R]
-/Count 1
->>
-endobj
-3 0 obj
-<<
-/Type /Page
-/Parent 2 0 R
-/MediaBox [0 0 612 792]
-/Contents 4 0 R
-/Resources << /Font << /F1 5 0 R >> >>
->>
-endobj
-4 0 obj
-<< /Length ${textLength} >>
-stream
-${contentStream}
-endstream
-endobj
-5 0 obj
-<<
-/Type /Font
-/Subtype /Type1
-/BaseFont /Helvetica
->>
-endobj
-xref
-0 6
-0000000000 65535 f 
-0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
-0000000274 00000 n 
-0000000${(400 + textLength).toString().padStart(3, '0')} 00000 n 
-trailer
-<< /Size 6 /Root 1 0 R >>
-startxref
-${450 + textLength}
-%%EOF`;
+  // كائنات PDF بالترتيب
+  const obj1 = `1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n`;
+  const obj2 = `2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n`;
+  const obj3 = `3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/MediaBox [0 0 612 792]\n/Contents 4 0 R\n/Resources << /Font << /F1 5 0 R >> >>\n>>\nendobj\n`;
+  const obj4 = `4 0 obj\n<< /Length ${contentBytes.length} >>\nstream\n${contentStream}\nendstream\nendobj\n`;
+  const obj5 = `5 0 obj\n<<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\nendobj\n`;
 
-  return new TextEncoder().encode(pdfContent);
+  const header = `%PDF-1.4\n`;
+  const objects = [obj1, obj2, obj3, obj4, obj5];
+
+  // حساب الإزاحات بالبايت (UTF-8)
+  let offset = encoder.encode(header).length;
+  const objOffsets: number[] = [];
+  for (const o of objects) {
+    objOffsets.push(offset);
+    offset += encoder.encode(o).length;
+  }
+
+  // xref + trailer
+  const pad10 = (n: number) => n.toString().padStart(10, "0");
+  let xref = `xref\n0 6\n`;
+  xref += `0000000000 65535 f \n`;
+  for (let i = 0; i < objOffsets.length; i++) {
+    xref += `${pad10(objOffsets[i])} 00000 n \n`;
+  }
+
+  const startXref = offset; // مكان بداية xref
+  const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF`;
+
+  // تركيب الملف النهائي
+  const pdfString = header + objects.join("") + xref + trailer;
+  return encoder.encode(pdfString);
 }
 
 function encodeBase64(bytes: Uint8Array): string {
