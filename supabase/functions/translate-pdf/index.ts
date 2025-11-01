@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,12 +38,16 @@ serve(async (req) => {
       throw new Error("No text found in PDF");
     }
 
-    // Translate text using Lovable AI
-    const translatedText = await translateText(pdfData.text);
+    // Split text into sentences for bilingual translation
+    const sentences = pdfData.text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    console.log(`Processing ${sentences.length} sentences`);
+
+    // Translate sentences using Lovable AI
+    const translations = await translateSentences(sentences);
     console.log("Translation completed");
 
-    // Create new PDF with translated text
-    const translatedPdfBuffer = await createPDFWithText(translatedText, pdfData.metadata);
+    // Create new bilingual PDF
+    const translatedPdfBuffer = await createBilingualPDF(sentences, translations);
     const translatedBase64 = encodeBase64(translatedPdfBuffer);
 
     return new Response(
@@ -100,25 +104,20 @@ async function extractTextFromPDF(pdfBuffer: Uint8Array): Promise<{ text: string
   };
 }
 
-async function translateText(text: string): Promise<string> {
+async function translateSentences(sentences: string[]): Promise<string[]> {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) {
     throw new Error("LOVABLE_API_KEY is not configured");
   }
 
-  // Split text into chunks if too long (max ~4000 chars per chunk)
-  const maxChunkSize = 4000;
-  const chunks = [];
+  const translations: string[] = [];
   
-  for (let i = 0; i < text.length; i += maxChunkSize) {
-    chunks.push(text.slice(i, i + maxChunkSize));
-  }
-
-  console.log(`Translating ${chunks.length} chunks`);
-
-  const translatedChunks = [];
-  
-  for (const chunk of chunks) {
+  // Process in batches of 10 sentences
+  const batchSize = 10;
+  for (let i = 0; i < sentences.length; i += batchSize) {
+    const batch = sentences.slice(i, i + batchSize);
+    const batchText = batch.join("\n===SENTENCE_SEPARATOR===\n");
+    
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -130,11 +129,11 @@ async function translateText(text: string): Promise<string> {
         messages: [
           {
             role: "system",
-            content: "You are a professional translator. Translate the following English text to Arabic. Maintain the original meaning and structure. Only return the translated text without any additional comments."
+            content: "You are a professional translator. Translate each English sentence to Arabic. Keep the same number of sentences separated by ===SENTENCE_SEPARATOR===. Only return the translated sentences without any additional comments."
           },
           {
             role: "user",
-            content: chunk
+            content: batchText
           }
         ],
       }),
@@ -147,79 +146,61 @@ async function translateText(text: string): Promise<string> {
     }
 
     const data = await response.json();
-    const translated = data.choices[0].message.content;
-    translatedChunks.push(translated);
+    const translatedBatch = data.choices[0].message.content.split("===SENTENCE_SEPARATOR===");
+    translations.push(...translatedBatch.map((t: string) => t.trim()));
   }
 
-  return translatedChunks.join("\n\n");
+  return translations;
 }
 
-async function createPDFWithText(text: string, metadata: any): Promise<Uint8Array> {
-  // Create a simple PDF with the translated text
-  const pdfContent = `%PDF-1.4
-1 0 obj
-<<
-/Type /Catalog
-/Pages 2 0 R
->>
-endobj
-2 0 obj
-<<
-/Type /Pages
-/Kids [3 0 R]
-/Count 1
->>
-endobj
-3 0 obj
-<<
-/Type /Page
-/Parent 2 0 R
-/MediaBox [0 0 612 792]
-/Contents 4 0 R
-/Resources <<
-/Font <<
-/F1 5 0 R
->>
->>
->>
-endobj
-4 0 obj
-<<
-/Length ${text.length + 100}
->>
-stream
-BT
-/F1 12 Tf
-50 750 Td
-${text.split('\n').map(line => `(${line.replace(/[()\\]/g, '\\$&')}) Tj 0 -15 Td`).join('\n')}
-ET
-endstream
-endobj
-5 0 obj
-<<
-/Type /Font
-/Subtype /Type1
-/BaseFont /Helvetica
->>
-endobj
-xref
-0 6
-0000000000 65535 f
-0000000009 00000 n
-0000000058 00000 n
-0000000115 00000 n
-0000000274 00000 n
-0000000${(400 + text.length).toString().padStart(3, '0')} 00000 n
-trailer
-<<
-/Size 6
-/Root 1 0 R
->>
-startxref
-${450 + text.length}
-%%EOF`;
-
-  return new TextEncoder().encode(pdfContent);
+async function createBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+  const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+  
+  let page = pdfDoc.addPage([595, 842]); // A4 size
+  let yPosition = 780;
+  const margin = 50;
+  const lineHeight = 20;
+  const maxWidth = 495; // 595 - 2*margin
+  
+  for (let i = 0; i < englishSentences.length; i++) {
+    const english = englishSentences[i].trim();
+    const arabic = arabicTranslations[i]?.trim() || "";
+    
+    // Check if we need a new page
+    if (yPosition < 100) {
+      page = pdfDoc.addPage([595, 842]);
+      yPosition = 780;
+    }
+    
+    // Draw English text (left-to-right)
+    page.drawText(english, {
+      x: margin,
+      y: yPosition,
+      size: 11,
+      font: timesRomanFont,
+      color: rgb(0, 0, 0),
+      maxWidth: maxWidth,
+    });
+    
+    yPosition -= lineHeight;
+    
+    // Draw Arabic text (right-to-left) - Note: pdf-lib has limited RTL support
+    // For production, consider using a library with better Arabic support
+    page.drawText(arabic, {
+      x: margin,
+      y: yPosition,
+      size: 11,
+      font: timesRomanFont,
+      color: rgb(0.2, 0.2, 0.2),
+      maxWidth: maxWidth,
+    });
+    
+    yPosition -= lineHeight + 5; // Extra spacing between pairs
+  }
+  
+  const pdfBytes = await pdfDoc.save();
+  return new Uint8Array(pdfBytes);
 }
 
 function encodeBase64(bytes: Uint8Array): string {
