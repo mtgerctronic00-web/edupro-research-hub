@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
+// import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,8 +46,8 @@ serve(async (req) => {
     const translations = await translateSentences(sentences);
     console.log("Translation completed");
 
-    // Create new bilingual PDF
-    const translatedPdfBuffer = await createBilingualPDF(sentences, translations);
+    // Create new bilingual PDF (simple)
+    const translatedPdfBuffer = await createSimpleBilingualPDF(sentences, translations);
     const translatedBase64 = encodeBase64(translatedPdfBuffer);
 
     return new Response(
@@ -153,54 +153,73 @@ async function translateSentences(sentences: string[]): Promise<string[]> {
   return translations;
 }
 
-async function createBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
-  const pdfDoc = await PDFDocument.create();
-  const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-  
-  let page = pdfDoc.addPage([595, 842]); // A4 size
-  let yPosition = 780;
-  const margin = 50;
-  const lineHeight = 20;
-  const maxWidth = 495; // 595 - 2*margin
-  
+async function createSimpleBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
+  // Very simple PDF builder using Type1 Helvetica (Arabic shaping not supported)
+  // We still generate bilingual lines; we'll improve font/RTL later
+  const escape = (s: string) => s.replace(/[()\\]/g, "\\$&");
+  const lines: string[] = [];
   for (let i = 0; i < englishSentences.length; i++) {
-    const english = englishSentences[i].trim();
-    const arabic = arabicTranslations[i]?.trim() || "";
-    
-    // Check if we need a new page
-    if (yPosition < 100) {
-      page = pdfDoc.addPage([595, 842]);
-      yPosition = 780;
-    }
-    
-    // Draw English text (left-to-right)
-    page.drawText(english, {
-      x: margin,
-      y: yPosition,
-      size: 11,
-      font: timesRomanFont,
-      color: rgb(0, 0, 0),
-      maxWidth: maxWidth,
-    });
-    
-    yPosition -= lineHeight;
-    
-    // Draw Arabic text (right-to-left) - Note: pdf-lib has limited RTL support
-    // For production, consider using a library with better Arabic support
-    page.drawText(arabic, {
-      x: margin,
-      y: yPosition,
-      size: 11,
-      font: timesRomanFont,
-      color: rgb(0.2, 0.2, 0.2),
-      maxWidth: maxWidth,
-    });
-    
-    yPosition -= lineHeight + 5; // Extra spacing between pairs
+    const en = englishSentences[i]?.trim() || "";
+    const ar = arabicTranslations[i]?.trim() || "";
+    if (en) lines.push(`(${escape(en)}) Tj 0 -15 Td`);
+    if (ar) lines.push(`(${escape(ar)}) Tj 0 -20 Td`);
+    lines.push(`( ) Tj 0 -10 Td`); // extra spacing between pairs
   }
-  
-  const pdfBytes = await pdfDoc.save();
-  return new Uint8Array(pdfBytes);
+
+  const contentStream = `BT\n/F1 12 Tf\n50 750 Td\n${lines.join("\n")}\nET`;
+  const textLength = contentStream.length;
+
+  const pdfContent = `%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources << /Font << /F1 5 0 R >> >>
+>>
+endobj
+4 0 obj
+<< /Length ${textLength} >>
+stream
+${contentStream}
+endstream
+endobj
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000274 00000 n 
+0000000${(400 + textLength).toString().padStart(3, '0')} 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+${450 + textLength}
+%%EOF`;
+
+  return new TextEncoder().encode(pdfContent);
 }
 
 function encodeBase64(bytes: Uint8Array): string {
