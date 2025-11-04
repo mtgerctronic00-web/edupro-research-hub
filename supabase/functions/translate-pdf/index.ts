@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,8 +46,8 @@ serve(async (req) => {
     const translations = await translateSentences(sentences);
     console.log("Translation completed");
 
-    // Create new bilingual PDF (simple)
-    const translatedPdfBuffer = await createSimpleBilingualPDF(sentences, translations);
+    // Create new bilingual PDF using pdf-lib
+    const translatedPdfBuffer = await createBilingualPDF(sentences, translations);
     const translatedBase64 = encodeBase64(translatedPdfBuffer);
 
     return new Response(
@@ -153,57 +153,113 @@ async function translateSentences(sentences: string[]): Promise<string[]> {
   return translations;
 }
 
-async function createSimpleBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
-  // يبني PDF صحيح مع حساب إزاحات xref بدقة
-  const escape = (s: string) => s.replace(/[()\\]/g, "\\$&");
-  const encoder = new TextEncoder();
-
-  // نبني سطور: سطر إنكليزي، تحته سطر عربي، ثم سطر فارغ
-  const lines: string[] = [];
+async function createBilingualPDF(englishSentences: string[], arabicTranslations: string[]): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  
+  // Page settings
+  const pageWidth = 595;
+  const pageHeight = 842;
+  const margin = 50;
+  const maxWidth = pageWidth - (margin * 2);
+  const lineHeight = 20;
+  const sectionGap = 10;
+  
+  let currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
+  let yPosition = pageHeight - margin;
+  
   for (let i = 0; i < englishSentences.length; i++) {
-    const en = englishSentences[i]?.trim() || "";
-    const ar = arabicTranslations[i]?.trim() || "";
-    if (en) lines.push(`(${escape(en)}) Tj`);
-    if (ar) lines.push(`T*\n(${escape(ar)}) Tj`);
-    lines.push(`T*`); // مسافة إضافية بين الأزواج
+    const english = englishSentences[i]?.trim() || "";
+    const arabic = arabicTranslations[i]?.trim() || "";
+    
+    if (!english && !arabic) continue;
+    
+    // Split text into lines if too long
+    const englishLines = splitTextIntoLines(english, maxWidth, 12, font);
+    const arabicLines = splitTextIntoLines(arabic, maxWidth, 12, font);
+    
+    const totalHeight = (englishLines.length + arabicLines.length) * lineHeight + sectionGap * 2;
+    
+    // Add new page if needed
+    if (yPosition - totalHeight < margin) {
+      currentPage = pdfDoc.addPage([pageWidth, pageHeight]);
+      yPosition = pageHeight - margin;
+    }
+    
+    // Draw English text (bold label + text)
+    currentPage.drawText("English:", {
+      x: margin,
+      y: yPosition,
+      size: 10,
+      font: boldFont,
+      color: rgb(0.2, 0.2, 0.2),
+    });
+    yPosition -= lineHeight;
+    
+    for (const line of englishLines) {
+      currentPage.drawText(line, {
+        x: margin,
+        y: yPosition,
+        size: 12,
+        font: font,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= lineHeight;
+    }
+    
+    yPosition -= sectionGap;
+    
+    // Draw Arabic text (bold label + text)
+    currentPage.drawText("Arabic:", {
+      x: margin,
+      y: yPosition,
+      size: 10,
+      font: boldFont,
+      color: rgb(0.2, 0.2, 0.2),
+    });
+    yPosition -= lineHeight;
+    
+    for (const line of arabicLines) {
+      currentPage.drawText(line, {
+        x: margin,
+        y: yPosition,
+        size: 12,
+        font: font,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= lineHeight;
+    }
+    
+    yPosition -= sectionGap * 2;
   }
+  
+  const pdfBytes = await pdfDoc.save();
+  return pdfBytes;
+}
 
-  // نستخدم T* مع TL كنقل سطر موثوق
-  const contentStream = `BT\n/F1 12 Tf\n14 TL\n50 780 Td\n${lines.join("\n")}\nET`;
-  const contentBytes = encoder.encode(contentStream);
-
-  // كائنات PDF بالترتيب
-  const obj1 = `1 0 obj\n<<\n/Type /Catalog\n/Pages 2 0 R\n>>\nendobj\n`;
-  const obj2 = `2 0 obj\n<<\n/Type /Pages\n/Kids [3 0 R]\n/Count 1\n>>\nendobj\n`;
-  const obj3 = `3 0 obj\n<<\n/Type /Page\n/Parent 2 0 R\n/MediaBox [0 0 612 792]\n/Contents 4 0 R\n/Resources << /Font << /F1 5 0 R >> >>\n>>\nendobj\n`;
-  const obj4 = `4 0 obj\n<< /Length ${contentBytes.length} >>\nstream\n${contentStream}\nendstream\nendobj\n`;
-  const obj5 = `5 0 obj\n<<\n/Type /Font\n/Subtype /Type1\n/BaseFont /Helvetica\n>>\nendobj\n`;
-
-  const header = `%PDF-1.4\n`;
-  const objects = [obj1, obj2, obj3, obj4, obj5];
-
-  // حساب الإزاحات بالبايت (UTF-8)
-  let offset = encoder.encode(header).length;
-  const objOffsets: number[] = [];
-  for (const o of objects) {
-    objOffsets.push(offset);
-    offset += encoder.encode(o).length;
+function splitTextIntoLines(text: string, maxWidth: number, fontSize: number, font: any): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+  
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const textWidth = font.widthOfTextAtSize(testLine, fontSize);
+    
+    if (textWidth > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
   }
-
-  // xref + trailer
-  const pad10 = (n: number) => n.toString().padStart(10, "0");
-  let xref = `xref\n0 6\n`;
-  xref += `0000000000 65535 f \n`;
-  for (let i = 0; i < objOffsets.length; i++) {
-    xref += `${pad10(objOffsets[i])} 00000 n \n`;
+  
+  if (currentLine) {
+    lines.push(currentLine);
   }
-
-  const startXref = offset; // مكان بداية xref
-  const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF`;
-
-  // تركيب الملف النهائي
-  const pdfString = header + objects.join("") + xref + trailer;
-  return encoder.encode(pdfString);
+  
+  return lines.length > 0 ? lines : [''];
 }
 
 function encodeBase64(bytes: Uint8Array): string {
